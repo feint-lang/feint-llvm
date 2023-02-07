@@ -77,14 +77,15 @@ program:
 
 statement:
   | NL { Newline }
+  (* Comments *)
+  | c = COMMENT { Comment c }
+  | c = DOC_COMMENT { DocComment c }
+  (* Expressions *)
   | e = expr; NL { Expr e }
   | e = expr; EOF { Expr e }
   ;
 
 expr:
-  (* Comments *)
-  | c = COMMENT { Comment c }
-  | c = DOC_COMMENT { DocComment c }
   (* Types *)
   | NIL { Nil }
   | TRUE { Bool true }

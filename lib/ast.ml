@@ -4,9 +4,6 @@ type unary_op = NoOp | Negate
 type binary_op = Pow | Mul | Div | FloorDiv | Mod | Add | Sub
 
 type expr =
-  (* Comments *)
-  | Comment of string
-  | DocComment of string
   (* Types *)
   | Nil
   | Bool of bool
@@ -20,7 +17,12 @@ type expr =
   | UnaryOp of unary_op * expr
   | BinaryOp of expr * binary_op * expr
 
-type statement = Expr of expr | Newline
+type statement =
+  | Comment of string
+  | DocComment of string
+  | Expr of expr
+  | Newline
+
 type program = statement list
 
 let display_unary_op op = match op with NoOp -> "" | Negate -> "-"
@@ -37,8 +39,6 @@ let display_binary_op op =
 
 let rec display_expr expr =
   match expr with
-  | Comment c -> sprintf "# %s" c
-  | DocComment c -> sprintf "// %s" c
   | Nil -> "nil"
   | Bool b -> sprintf "%b" b
   | Int i -> sprintf "%i" i
@@ -58,6 +58,12 @@ let display_ast statements =
   Printf.printf "Program Statements:\n";
   List.iter
     (fun statement ->
-      let s = match statement with Expr e -> display_expr e | Newline -> "" in
+      let s =
+        match statement with
+        | Comment c -> sprintf "# %s" c
+        | DocComment c -> sprintf "// %s" c
+        | Expr e -> display_expr e
+        | Newline -> ""
+      in
       printf "%s\n" s)
     statements

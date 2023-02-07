@@ -1,5 +1,8 @@
+open Lexing
+open Printf
 module E = MenhirLib.ErrorReports
 module L = MenhirLib.LexerUtil
+module I = UnitActionsParser.MenhirInterpreter
 
 let try_parse lexbuf text =
   match Parser.program Lexer.read lexbuf with
@@ -15,18 +18,45 @@ let try_parse lexbuf text =
       Printf.eprintf "\n--------------------\n%s--------------------\n" text;
       None
 
-(** Parse text
+let env checkpoint =
+  match checkpoint with I.HandlingError env -> env | _ -> assert false
 
-    On success, do nothing. On error, show an error message. *)
+let state checkpoint : int =
+  match I.top (env checkpoint) with
+  | Some (I.Element (s, _, _, _)) -> I.number s
+  | None -> 0
+
+let show text positions =
+  E.extract text positions |> E.sanitize |> E.compress |> E.shorten 20
+
+let get text checkpoint i =
+  match I.get i (env checkpoint) with
+  | Some (I.Element (_, _, pos1, pos2)) -> show text (pos1, pos2)
+  | None -> "???"
+
+let succeed _v = assert false
+
+let fail text buffer (checkpoint : _ I.checkpoint) =
+  let location = L.range (E.last buffer) in
+  let indication = sprintf "Syntax error %s.\n" (E.show (show text) buffer) in
+  let message = ParserMessages.message (state checkpoint) in
+  let message = E.expand (get text checkpoint) message in
+  eprintf "%s%s%s%!" location indication message;
+  exit 1
+
+let fallback file_name text =
+  let lexbuf = L.init file_name (Lexing.from_string text) in
+  let supplier = I.lexer_lexbuf_to_supplier Lexer.read lexbuf in
+  let buffer, supplier = E.wrap_supplier supplier in
+  let checkpoint = UnitActionsParser.Incremental.program lexbuf.lex_curr_p in
+  I.loop_handle succeed (fail text buffer) supplier checkpoint
+
 let parse_text text =
   let lexbuf = Lexing.from_string text in
   let ast = try_parse lexbuf text in
   ast
 
-(** Parse file contents
-
-    On success, do nothing. On error, show an error message. *)
 let parse_file file_name =
   let text, lexbuf = L.read file_name in
   let ast = try_parse lexbuf text in
-  ast
+  match ast with Some ast -> Some ast | None -> fallback file_name text

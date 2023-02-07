@@ -22,9 +22,9 @@ program: LPAREN STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: LPAREN COMMENT NL
+program: LPAREN FALSE NL
 ##
-## Ends in an error in state: 13.
+## Ends in an error in state: 11.
 ##
 ## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
 ## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
@@ -41,9 +41,9 @@ program: LPAREN COMMENT NL
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT STAR STAR
+program: FALSE STAR STAR
 ##
-## Ends in an error in state: 14.
+## Ends in an error in state: 12.
 ##
 ## expr -> expr STAR . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ##
@@ -53,9 +53,9 @@ program: COMMENT STAR STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT STAR COMMENT TRUE
+program: FALSE STAR FALSE TRUE
 ##
-## Ends in an error in state: 15.
+## Ends in an error in state: 13.
 ##
 ## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
@@ -72,9 +72,9 @@ program: COMMENT STAR COMMENT TRUE
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT CARET STAR
+program: FALSE CARET STAR
 ##
-## Ends in an error in state: 16.
+## Ends in an error in state: 14.
 ##
 ## expr -> expr CARET . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ##
@@ -84,9 +84,9 @@ program: COMMENT CARET STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT CARET COMMENT TRUE
+program: FALSE CARET FALSE TRUE
 ##
-## Ends in an error in state: 17.
+## Ends in an error in state: 15.
 ##
 ## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ## expr -> expr CARET expr . [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
@@ -103,9 +103,9 @@ program: COMMENT CARET COMMENT TRUE
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT SLASH STAR
+program: FALSE SLASH STAR
 ##
-## Ends in an error in state: 18.
+## Ends in an error in state: 16.
 ##
 ## expr -> expr SLASH . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ##
@@ -115,9 +115,9 @@ program: COMMENT SLASH STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT SLASH COMMENT TRUE
+program: FALSE SLASH FALSE TRUE
 ##
-## Ends in an error in state: 19.
+## Ends in an error in state: 17.
 ##
 ## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
@@ -134,9 +134,9 @@ program: COMMENT SLASH COMMENT TRUE
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT PERCENT STAR
+program: FALSE PERCENT STAR
 ##
-## Ends in an error in state: 20.
+## Ends in an error in state: 18.
 ##
 ## expr -> expr PERCENT . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ##
@@ -146,9 +146,9 @@ program: COMMENT PERCENT STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT PERCENT COMMENT TRUE
+program: FALSE PERCENT FALSE TRUE
 ##
-## Ends in an error in state: 21.
+## Ends in an error in state: 19.
 ##
 ## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
@@ -165,9 +165,9 @@ program: COMMENT PERCENT COMMENT TRUE
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT DOUBLE_SLASH STAR
+program: FALSE DOUBLE_SLASH STAR
 ##
-## Ends in an error in state: 22.
+## Ends in an error in state: 20.
 ##
 ## expr -> expr DOUBLE_SLASH . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ##
@@ -177,9 +177,9 @@ program: COMMENT DOUBLE_SLASH STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT DOUBLE_SLASH COMMENT TRUE
+program: FALSE DOUBLE_SLASH FALSE TRUE
 ##
-## Ends in an error in state: 23.
+## Ends in an error in state: 21.
 ##
 ## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
@@ -196,9 +196,9 @@ program: COMMENT DOUBLE_SLASH COMMENT TRUE
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT PLUS STAR
+program: FALSE PLUS STAR
 ##
-## Ends in an error in state: 25.
+## Ends in an error in state: 23.
 ##
 ## expr -> expr PLUS . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ##
@@ -208,9 +208,9 @@ program: COMMENT PLUS STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT PLUS COMMENT TRUE
+program: FALSE PLUS FALSE TRUE
 ##
-## Ends in an error in state: 26.
+## Ends in an error in state: 24.
 ##
 ## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
@@ -227,9 +227,9 @@ program: COMMENT PLUS COMMENT TRUE
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT DASH STAR
+program: FALSE DASH STAR
 ##
-## Ends in an error in state: 27.
+## Ends in an error in state: 25.
 ##
 ## expr -> expr DASH . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ##
@@ -239,9 +239,9 @@ program: COMMENT DASH STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT DASH COMMENT TRUE
+program: FALSE DASH FALSE TRUE
 ##
-## Ends in an error in state: 28.
+## Ends in an error in state: 26.
 ##
 ## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
 ## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
@@ -258,7 +258,7 @@ program: COMMENT DASH COMMENT TRUE
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: NL STAR
+program: COMMENT STAR
 ##
 ## Ends in an error in state: 29.
 ##
@@ -270,7 +270,7 @@ program: NL STAR
 
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-program: COMMENT RPAREN
+program: FALSE RPAREN
 ##
 ## Ends in an error in state: 31.
 ##
