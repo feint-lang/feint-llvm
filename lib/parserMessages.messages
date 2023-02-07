@@ -1,0 +1,292 @@
+program: STAR
+##
+## Ends in an error in state: 0.
+##
+## program' -> . program [ # ]
+##
+## The known suffix of the stack is as follows:
+##
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: LPAREN STAR
+##
+## Ends in an error in state: 6.
+##
+## expr -> LPAREN . expr RPAREN [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## LPAREN
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: LPAREN COMMENT NL
+##
+## Ends in an error in state: 13.
+##
+## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH RPAREN PLUS PERCENT DOUBLE_SLASH DASH CARET ]
+## expr -> LPAREN expr . RPAREN [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## LPAREN expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT STAR STAR
+##
+## Ends in an error in state: 14.
+##
+## expr -> expr STAR . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr STAR
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT STAR COMMENT TRUE
+##
+## Ends in an error in state: 15.
+##
+## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr STAR expr . [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr STAR expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT CARET STAR
+##
+## Ends in an error in state: 16.
+##
+## expr -> expr CARET . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr CARET
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT CARET COMMENT TRUE
+##
+## Ends in an error in state: 17.
+##
+## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr CARET expr . [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr CARET expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT SLASH STAR
+##
+## Ends in an error in state: 18.
+##
+## expr -> expr SLASH . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr SLASH
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT SLASH COMMENT TRUE
+##
+## Ends in an error in state: 19.
+##
+## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr SLASH expr . [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr SLASH expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT PERCENT STAR
+##
+## Ends in an error in state: 20.
+##
+## expr -> expr PERCENT . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr PERCENT
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT PERCENT COMMENT TRUE
+##
+## Ends in an error in state: 21.
+##
+## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr PERCENT expr . [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr PERCENT expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT DOUBLE_SLASH STAR
+##
+## Ends in an error in state: 22.
+##
+## expr -> expr DOUBLE_SLASH . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr DOUBLE_SLASH
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT DOUBLE_SLASH COMMENT TRUE
+##
+## Ends in an error in state: 23.
+##
+## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr DOUBLE_SLASH expr . [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr DOUBLE_SLASH expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT PLUS STAR
+##
+## Ends in an error in state: 25.
+##
+## expr -> expr PLUS . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr PLUS
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT PLUS COMMENT TRUE
+##
+## Ends in an error in state: 26.
+##
+## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr PLUS expr . [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr PLUS expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT DASH STAR
+##
+## Ends in an error in state: 27.
+##
+## expr -> expr DASH . expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr DASH
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT DASH COMMENT TRUE
+##
+## Ends in an error in state: 28.
+##
+## expr -> expr . CARET expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr DASH expr . [ STAR SLASH RPAREN PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+##
+## The known suffix of the stack is as follows:
+## expr DASH expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: NL STAR
+##
+## Ends in an error in state: 29.
+##
+## list(statement) -> statement . list(statement) [ EOF ]
+##
+## The known suffix of the stack is as follows:
+## statement
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+program: COMMENT RPAREN
+##
+## Ends in an error in state: 31.
+##
+## expr -> expr . CARET expr [ STAR SLASH PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . STAR expr [ STAR SLASH PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . SLASH expr [ STAR SLASH PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DOUBLE_SLASH expr [ STAR SLASH PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PERCENT expr [ STAR SLASH PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . PLUS expr [ STAR SLASH PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## expr -> expr . DASH expr [ STAR SLASH PLUS PERCENT NL EOF DOUBLE_SLASH DASH CARET ]
+## statement -> expr . NL [ TRUE STRING SPECIAL_IDENT NL NIL LPAREN INT IDENT FLOAT FALSE EOF DOC_COMMENT COMMENT ]
+## statement -> expr . EOF [ TRUE STRING SPECIAL_IDENT NL NIL LPAREN INT IDENT FLOAT FALSE EOF DOC_COMMENT COMMENT ]
+##
+## The known suffix of the stack is as follows:
+## expr
+##
+
+<YOUR SYNTAX ERROR MESSAGE HERE>
+

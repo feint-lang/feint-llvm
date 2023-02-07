@@ -1,7 +1,9 @@
+(library
+ (name feint)
+ (modules ast driver lexer parser)
+ (libraries menhirLib))
+
 (ocamllex lexer)
 
 (menhir
  (modules parser))
-
-(library
- (name feint))

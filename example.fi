@@ -1,0 +1,19 @@
+nil
+# throwaway comment
+1
+2
+3 + 4 * 5
+
++1
+-2
+
+true
+false
+
+// doc comment line 1
+// doc comment line 2
+0.0
+1.1 + 2.2
+
+name
+$main
