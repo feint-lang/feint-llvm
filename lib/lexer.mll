@@ -4,7 +4,7 @@
 open Lexing
 open Parser
 
-exception SyntaxError of string
+exception Error of string
 
 (** Increment line number **)
 let new_line lexbuf =
@@ -103,7 +103,7 @@ rule read = parse
   | '-' { DASH }
   | '.' { DOT }
   (* Other *)
-  | _ { raise (SyntaxError ("Unexpected character in input stream: " ^ Lexing.lexeme lexbuf)) }
+  | _ { raise (Error ("Unexpected character in input stream: " ^ Lexing.lexeme lexbuf)) }
   | eof { EOF }
 
 and read_comment buf = parse
@@ -151,5 +151,5 @@ and read_string buf = parse
       Buffer.add_string buf (Lexing.lexeme lexbuf);
       read_string buf lexbuf
     }
-  | _ { raise (SyntaxError ("Illegal character in string: " ^ Lexing.lexeme lexbuf)) }
-  | eof { raise (SyntaxError ("Unterminated string literal")) }
+  | _ { raise (Error ("Illegal character in string: " ^ Lexing.lexeme lexbuf)) }
+  | eof { raise (Error ("Unterminated string literal")) }
