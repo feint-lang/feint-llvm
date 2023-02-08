@@ -2,19 +2,7 @@ open Lexing
 open Printf
 
 type unary_op = NoOp | Negate | Not | AsBool
-
-type binary_op =
-  | Pow
-  | Mul
-  | Div
-  | FloorDiv
-  | Mod
-  | Add
-  | Sub
-  | And
-  | Or
-  | NilOr
-  | Dot
+type binary_op = Pow | Mul | Div | FloorDiv | Mod | Add | Sub | And | Or | NilOr | Dot
 
 type compare_op =
   | DollarDollar
@@ -59,8 +47,7 @@ type statement =
 
 type program = statement list
 
-let display_pos pos =
-  sprintf "%i:%i" pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+let display_pos pos = sprintf "%i:%i" pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
 
 let display_unary_op = function
   | NoOp -> ""
@@ -108,8 +95,7 @@ let rec display_expr expr =
   | String s -> sprintf "\"%s\"" (String.escaped s.value)
   | Ident i -> i.name
   | SpecialIdent i -> i.name
-  | UnaryOp op ->
-      sprintf "%s%s" (display_unary_op op.op) (display_expr op.operand)
+  | UnaryOp op -> sprintf "%s%s" (display_unary_op op.op) (display_expr op.operand)
   | BinaryOp op ->
       let lhs = display_expr op.lhs in
       let rhs = display_expr op.rhs in
@@ -134,8 +120,7 @@ let display_ast statements =
         match statement with
         | Comment c -> sprintf "%12s | # %s" (display_pos c.start) c.content
         | DocComment c -> sprintf "%12s | // %s" (display_pos c.start) c.content
-        | Expr e ->
-            sprintf "%12s | %s" (display_pos e.start) (display_expr e.expr)
+        | Expr e -> sprintf "%12s | %s" (display_pos e.start) (display_expr e.expr)
         | Newline -> sprintf "%12s |" ""
       in
       printf "%s\n" s)

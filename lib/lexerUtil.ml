@@ -47,8 +47,7 @@ let _ =
       ("match", MATCH);
     ]
 
-let get_keyword word =
-  try Hashtbl.find keywords word with Not_found -> IDENT word
+let get_keyword word = try Hashtbl.find keywords word with Not_found -> IDENT word
 
 (** Count newlines in string *)
 let count_newlines str =

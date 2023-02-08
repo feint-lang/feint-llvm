@@ -1,1 +1,4 @@
 version = 0.24.1
+profile = default
+margin = 88
+type-decl = compact
