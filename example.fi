@@ -29,3 +29,6 @@ x == 1
 nil ?? "x"
 
 block -> nil
+
+block ->
+    nil

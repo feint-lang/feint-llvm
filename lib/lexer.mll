@@ -48,8 +48,10 @@ rule read = parse
       DOC_COMMENT (String.trim comment)
     }
   (* Scopes *)
-  | "->" { SCOPE_START }
-  | "=>" { FUNC_START }
+  | "->" ws* nl { new_line lexbuf; SCOPE_START }
+  | "->" { INLINE_SCOPE_START }
+  | "=>" ws* nl { new_line lexbuf; FUNC_START }
+  | "=>" { INLINE_FUNC_START }
   (* Groupings *)
   | '(' { LPAREN }
   | ')' { RPAREN }

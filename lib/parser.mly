@@ -16,13 +16,13 @@ open Ast
 %token <string> DOC_COMMENT
 
 (* Scopes *)
-%token SCOPE_START
+%token SCOPE_START                     "->:"
 // %token SCOPE_END
-// %token INLINE_SCOPE_START
+%token INLINE_SCOPE_START              "->"
 // %token INLINE_SCOPE_END
 
-%token FUNC_START
-// %token INLINE_FUNC_START
+%token FUNC_START                      "=>:"
+%token INLINE_FUNC_START               "=>"
 
 (* Groupings *)
 %token LPAREN                          "("
@@ -97,7 +97,9 @@ open Ast
 %right EQ
 %right FEED
 
-%nonassoc SCOPE_START
+%nonassoc SCOPE_START INLINE_SCOPE_START
+%nonassoc FUNC_START INLINE_FUNC_START
+
 %nonassoc ELSE
 
 %left MUL_EQ
@@ -207,6 +209,7 @@ expr:
   | i = IDENT; FEED; v = expr { Reassignment { start = $startpos; name = i; value = v } }
   (* Blocks *)
   | BLOCK; SCOPE_START; e = expr { Block { start = $startpos; expr = e } }
+  | BLOCK; INLINE_SCOPE_START; e = expr { Block { start = $startpos; expr = e } }
   (* Parenthesized Expression *)
   | LPAREN; e = expr; RPAREN { e }
   ;
