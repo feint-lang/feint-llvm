@@ -1,21 +1,22 @@
-(** The parser takes tokens produced by the lexer and produces an AST. *)
-
 %{
 [@@@coverage exclude_file]
 
 open Ast
 %}
 
-(* Whitespace *)
+// Whitespace ----------------------------------------------------------
+
 %token NL
 %token <int> INDENT
 %token EOF
 
-(* Comments *)
+// Comments ------------------------------------------------------------
+
 %token <string> COMMENT
 %token <string> DOC_COMMENT
 
-(* Scopes *)
+// Scopes --------------------------------------------------------------
+
 %token SCOPE_START                     "->:"
 // %token SCOPE_END
 %token INLINE_SCOPE_START              "->"
@@ -24,7 +25,8 @@ open Ast
 %token FUNC_START                      "=>:"
 %token INLINE_FUNC_START               "=>"
 
-(* Groupings *)
+// Groupings -----------------------------------------------------------
+
 %token LPAREN                          "("
 %token RPAREN                          ")"
 %token LBRACE                          "["
@@ -32,7 +34,8 @@ open Ast
 %token LBRACKET                        "{"
 %token RBRACKET                        "}"
 
-(* Keyword *)
+// Keywords ------------------------------------------------------------
+
 %token NIL                             "nil"
 %token TRUE                            "true"
 %token FALSE                           "false"
@@ -41,18 +44,21 @@ open Ast
 %token ELSE                            "else"
 %token MATCH                           "match"
 
-(* Types *)
+// Types ---------------------------------------------------------------
+
 %token <int> INT
 %token <float> FLOAT
 %token <string> STRING
 
-(* Identifiers *)
+// Identifiers ---------------------------------------------------------
+
 %token <string> IDENT
 %token <string> SPECIAL_IDENT
 
 %token COMMA                           ","
 
-(* Operators *)
+// Operators -----------------------------------------------------------
+
 %token BANG                            "!"
 %token BANG_BANG                       "!!"
 
@@ -66,12 +72,14 @@ open Ast
 
 %token DOT                             "$"
 
-(* Logic Operators *)
+// Logic Operators -----------------------------------------------------
+
 %token AND                             "&&"
 %token OR                              "||"
 %token NIL_OR                          "??"
 
-(* Comparison Operators *)
+// Comparison Operators ------------------------------------------------
+
 %token DOLLAR_DOLLAR                   "$$"
 %token DOLLAR_NOT                      "$!"
 %token EQ_EQ_EQ                        "==="
@@ -83,17 +91,20 @@ open Ast
 %token GT                              ">"
 %token GT_OR_EQ                        ">="
 
-(* In Place Operators *)
+// In Place Operators --------------------------------------------------
+
 %token MUL_EQ                          "*="
 %token DIV_EQ                          "/="
 %token ADD_EQ                          "+="
 %token SUB_EQ                          "-= "
 
-(* Assignment Operators *)
+// Assignment Operators ------------------------------------------------
+
 %token EQ                              "="
 %token FEED                            "<-"
 
-(* Associativity & Precedence (low to high) *)
+// Associativity & Precedence (low to high) ----------------------------
+
 %right EQ
 %right FEED
 
@@ -137,7 +148,7 @@ open Ast
 
 %left DOT
 
-(* Start *)
+// Grammar -------------------------------------------------------------
 
 %type <Ast.program> program
 %type <Ast.statement list> list(statement)
@@ -147,69 +158,98 @@ open Ast
 %start program
 %%
 
+// Program -------------------------------------------------------------
+
 program:
   | statements = list(statement); EOF { statements }
   ;
 
+// Statements ----------------------------------------------------------
+
 statement:
   | NL { Newline }
-  (* Comments *)
-  | c = COMMENT { Comment { start = $startpos; content = c } }
-  | c = DOC_COMMENT { DocComment { start = $startpos; content = c } }
-  (* Expressions *)
+  | c = comment { c }
   | e = expr; NL { Expr { start = $startpos; expr = e } }
   | e = expr; EOF { Expr { start = $startpos; expr = e } }
   ;
 
+comment:
+  | c = COMMENT { Comment { start = $startpos; content = c } }
+  | c = DOC_COMMENT { DocComment { start = $startpos; content = c } }
+
+// Expressions ---------------------------------------------------------
+
 expr:
-  (* Types *)
-  | NIL { Nil }
+  | b = block { b }
+  | o = operation { o }
+  | a = assignment { a }
+  | a = atom { a }
+  | LPAREN; e = expr; RPAREN { e }
+  ;
+
+block:
+  | BLOCK; SCOPE_START; e = expr { Block { start = $startpos; expr = e } }
+  | BLOCK; INLINE_SCOPE_START; e = expr { Block { start = $startpos; expr = e } }
+
+operation:
+  | op = unary_op; a = expr { UnaryOp { start = $startpos; op = op; operand = a } }
+  | a = expr; op = binary_op; b = expr { BinaryOp { start = $startpos; lhs = a; op = op; rhs = b } }
+  | a = expr; op = logic_op; b = expr { BinaryOp { start = $startpos; lhs = a; op = op; rhs = b } }
+  | a = expr; op = compare_op; b = expr { CompareOp { start = $startpos; lhs = a; op = op; rhs = b } }
+  | a = expr; op = in_place_op; b = expr { InPlaceOp { start = $startpos; lhs = a; op = op; rhs = b } }
+
+assignment:
+  | i = IDENT; EQ; v = expr { Assignment { start = $startpos; name = i; value = v } }
+  | i = IDENT; FEED; v = expr { Reassignment { start = $startpos; name = i; value = v } }
+
+ident:
+  | n = IDENT { Ident { start = $startpos; name = n} }
+  | n = SPECIAL_IDENT { SpecialIdent { start = $startpos; name = n } }
+
+atom:
+  | NIL { Nil { start = $startpos } }
   | TRUE { Bool { start = $startpos; value = true } }
   | FALSE { Bool { start = $startpos; value = false } }
   | v = INT { Int { start = $startpos; value = v } }
   | v = FLOAT { Float { start = $startpos; value = v } }
   | v = STRING { String { start = $startpos; value = v } }
-  (* Identifiers *)
-  | n = IDENT { Ident { start = $startpos; name = n} }
-  | n = SPECIAL_IDENT { SpecialIdent { start = $startpos; name = n } }
-  (* Unary Operations *)
-  | BANG; a = expr { UnaryOp { start = $startpos; op = Not; operand = a } }
-  | BANG_BANG; a = expr { UnaryOp { start = $startpos; op = AsBool; operand = a } }
-  (* Binary Operations *)
-  | a = expr; CARET; b = expr { BinaryOp { start = $startpos; lhs = a; op = Pow; rhs = b } }
-  | a = expr; STAR; b = expr { BinaryOp { start = $startpos; lhs = a; op = Mul; rhs = b } }
-  | a = expr; SLASH; b = expr { BinaryOp { start = $startpos; lhs = a; op = Div; rhs = b } }
-  | a = expr; DOUBLE_SLASH; b = expr { BinaryOp { start = $startpos; lhs = a; op = FloorDiv; rhs = b } }
-  | a = expr; PERCENT; b = expr { BinaryOp { start = $startpos; lhs = a; op = Mod; rhs = b } }
-  | a = expr; PLUS; b = expr { BinaryOp { start = $startpos; lhs = a; op = Add; rhs = b } }
-  | a = expr; DASH; b = expr { BinaryOp { start = $startpos; lhs = a; op = Sub; rhs = b } }
-  | a = expr; DOT; b = expr { BinaryOp { start = $startpos; lhs = a; op = Dot; rhs = b } }
-  (* Logic Operations *)
-  | a = expr; AND; b = expr { BinaryOp { start = $startpos; lhs = a; op = And; rhs = b } }
-  | a = expr; OR; b = expr { BinaryOp { start = $startpos; lhs = a; op = Or; rhs = b } }
-  | a = expr; NIL_OR; b = expr { BinaryOp { start = $startpos; lhs = a; op = NilOr; rhs = b } }
-  (* Comparison Operations *)
-  | a = expr; DOLLAR_DOLLAR; b = expr { CompareOp { start = $startpos; lhs = a; op = DollarDollar; rhs = b } }
-  | a = expr; DOLLAR_NOT; b = expr { CompareOp { start = $startpos; lhs = a; op = DollarNot; rhs = b } }
-  | a = expr; EQ_EQ_EQ; b = expr { CompareOp { start = $startpos; lhs = a; op = EqEqEq; rhs = b } }
-  | a = expr; NOT_EQ_EQ; b = expr { CompareOp { start = $startpos; lhs = a; op = NotEqEq; rhs = b } }
-  | a = expr; EQ_EQ; b = expr { CompareOp { start = $startpos; lhs = a; op = EqEq; rhs = b } }
-  | a = expr; NOT_EQ; b = expr { CompareOp { start = $startpos; lhs = a; op = NotEq; rhs = b } }
-  | a = expr; LT; b = expr { CompareOp { start = $startpos; lhs = a; op = LessThan; rhs = b } }
-  | a = expr; LT_OR_EQ; b = expr { CompareOp { start = $startpos; lhs = a; op = LessThanEq; rhs = b } }
-  | a = expr; GT; b = expr { CompareOp { start = $startpos; lhs = a; op = GreaterThan; rhs = b } }
-  | a = expr; GT_OR_EQ; b = expr { CompareOp { start = $startpos; lhs = a; op = GreaterThanEq; rhs = b } }
-  (* In Place Operations *)
-  | a = expr; MUL_EQ; b = expr { InPlaceOp { start = $startpos; lhs = a; op = MulEq; rhs = b } }
-  | a = expr; DIV_EQ; b = expr { InPlaceOp { start = $startpos; lhs = a; op = DivEq; rhs = b } }
-  | a = expr; ADD_EQ; b = expr { InPlaceOp { start = $startpos; lhs = a; op = AddEq; rhs = b } }
-  | a = expr; SUB_EQ; b = expr { InPlaceOp { start = $startpos; lhs = a; op = SubEq; rhs = b } }
-  (* Assignment *)
-  | i = IDENT; EQ; v = expr { Assignment { start = $startpos; name = i; value = v } }
-  | i = IDENT; FEED; v = expr { Reassignment { start = $startpos; name = i; value = v } }
-  (* Blocks *)
-  | BLOCK; SCOPE_START; e = expr { Block { start = $startpos; expr = e } }
-  | BLOCK; INLINE_SCOPE_START; e = expr { Block { start = $startpos; expr = e } }
-  (* Parenthesized Expression *)
-  | LPAREN; e = expr; RPAREN { e }
-  ;
+  | i = ident { i }
+
+// Operations ----------------------------------------------------------
+
+%inline unary_op:
+  | BANG { Not }
+  | BANG_BANG { AsBool }
+
+%inline binary_op:
+  | CARET { Pow }
+  | STAR { Mul }
+  | SLASH { Div }
+  | DOUBLE_SLASH { FloorDiv }
+  | PERCENT { Mod }
+  | PLUS { Add }
+  | DASH { Sub }
+  | DOT { Dot }
+
+%inline logic_op:
+  | AND { And }
+  | OR { Or }
+  | NIL_OR { NilOr }
+
+%inline compare_op:
+  | DOLLAR_DOLLAR { DollarDollar }
+  | DOLLAR_NOT { DollarNot }
+  | EQ_EQ_EQ { EqEqEq }
+  | NOT_EQ_EQ { NotEqEq }
+  | EQ_EQ { EqEq }
+  | NOT_EQ { NotEq }
+  | LT { LessThan }
+  | LT_OR_EQ { LessThanEq }
+  | GT { GreaterThan }
+  | GT_OR_EQ { GreaterThanEq }
+
+%inline in_place_op:
+  | MUL_EQ { MulEq }
+  | DIV_EQ { DivEq }
+  | ADD_EQ { AddEq }
+  | SUB_EQ { SubEq }

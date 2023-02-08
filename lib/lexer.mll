@@ -1,4 +1,3 @@
-(** The lexer takes an input stream and produces tokens. *)
 {
 open LexerUtil
 open Parser

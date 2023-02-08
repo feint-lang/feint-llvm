@@ -32,7 +32,7 @@ type in_place_op = MulEq | DivEq | AddEq | SubEq
 
 type expr =
   (* Types *)
-  | Nil
+  | Nil of { start : position }
   | Bool of { start : position; value : bool }
   | Int of { start : position; value : int }
   | Float of { start : position; value : float }
@@ -101,7 +101,7 @@ let display_in_place_op = function
 
 let rec display_expr expr =
   match expr with
-  | Nil -> "nil"
+  | Nil _ -> "nil"
   | Bool b -> sprintf "%b" b.value
   | Int i -> sprintf "%i" i.value
   | Float f -> sprintf "%f" f.value
