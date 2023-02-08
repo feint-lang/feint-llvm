@@ -1,14 +1,17 @@
 nil
-# throwaway comment
+# comment
 1
 2
 3 + 4 * 5
 
+# multiline
+# comment
 +1
 -2
 
 true
 false
+
 
 // doc comment line 1
 // doc comment line 2
@@ -17,3 +20,12 @@ false
 
 name
 $main
+
+x = 1
+x <- 1
+
+x && y
+x == 1
+nil ?? "x"
+
+block -> nil

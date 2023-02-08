@@ -7,16 +7,12 @@ module I = UnitActionsParser.MenhirInterpreter
 let try_parse lexbuf text =
   match Parser.program Lexer.read lexbuf with
   | ast -> Some ast
-  | exception Lexer.Error msg ->
-      let pos = Lexer.format_pos lexbuf in
+  | exception LexerUtil.Error msg ->
+      let pos = LexerUtil.format_pos lexbuf in
       Printf.eprintf "Syntax error on %s:\n\n  %s\n" pos msg;
-      Printf.eprintf "\n--------------------\n%s--------------------\n" text;
+      Printf.eprintf "\n--------------------\n%s\n--------------------\n" text;
       None
-  | exception Parser.Error ->
-      let pos = Lexer.format_pos lexbuf in
-      Printf.eprintf "Parse error on %s\n" pos;
-      Printf.eprintf "\n--------------------\n%s--------------------\n" text;
-      None
+  | exception Parser.Error -> None
 
 let env checkpoint =
   match checkpoint with I.HandlingError env -> env | _ -> assert false
@@ -51,10 +47,12 @@ let fallback file_name text =
   let checkpoint = UnitActionsParser.Incremental.program lexbuf.lex_curr_p in
   I.loop_handle succeed (fail text buffer) supplier checkpoint
 
+(* Entrypoints *)
+
 let parse_text text =
   let lexbuf = Lexing.from_string text in
   let ast = try_parse lexbuf text in
-  ast
+  match ast with Some ast -> Some ast | None -> fallback "<text>" text
 
 let parse_file file_name =
   let text, lexbuf = L.read file_name in
