@@ -38,6 +38,7 @@ type expr =
   | Reassignment of { start : position; name : string; value : expr }
   (* Block *)
   | Block of { start : position; expr : expr }
+  | Print of { start : position; expr : expr }
 
 type statement =
   | Comment of { start : position; content : string }
@@ -45,7 +46,7 @@ type statement =
   | Expr of { start : position; expr : expr }
   | Newline
 
-type program = statement list
+type fmodule = statement list
 
 let display_pos pos = sprintf "%i:%i" pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
 
@@ -86,8 +87,7 @@ let display_in_place_op = function
   | AddEq -> "+="
   | SubEq -> "-="
 
-let rec display_expr expr =
-  match expr with
+let rec display_expr = function
   | Nil _ -> "nil"
   | Bool b -> sprintf "%b" b.value
   | Int i -> sprintf "%i" i.value
@@ -111,17 +111,16 @@ let rec display_expr expr =
   | Assignment a -> sprintf "%s = %s" a.name (display_expr a.value)
   | Reassignment a -> sprintf "%s <- %s" a.name (display_expr a.value)
   | Block b -> sprintf "block -> %s" (display_expr b.expr)
+  | Print p -> sprintf "print %s" (display_expr p.expr)
 
-let display_ast statements =
-  Printf.printf "Program Statements:\n";
-  List.iter
-    (fun statement ->
-      let s =
-        match statement with
-        | Comment c -> sprintf "%12s | # %s" (display_pos c.start) c.content
-        | DocComment c -> sprintf "%12s | // %s" (display_pos c.start) c.content
-        | Expr e -> sprintf "%12s | %s" (display_pos e.start) (display_expr e.expr)
-        | Newline -> sprintf "%12s |" ""
-      in
-      printf "%s\n" s)
-    statements
+let display_statement statement =
+  let s =
+    match statement with
+    | Comment c -> sprintf "%12s | # %s" (display_pos c.start) c.content
+    | DocComment c -> sprintf "%12s | // %s" (display_pos c.start) c.content
+    | Expr e -> sprintf "%12s | %s" (display_pos e.start) (display_expr e.expr)
+    | Newline -> sprintf "%12s |" ""
+  in
+  printf "%s\n" s
+
+let display_statements statements = List.iter display_statement statements

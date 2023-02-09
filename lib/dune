@@ -1,6 +1,14 @@
 (library
  (name feint)
- (modules ast driver lexer parser parserMessages unitActionsParser lexerUtil)
+ (modules
+  ast
+  driver
+  interpreter
+  lexer
+  parser
+  parserMessages
+  unitActionsParser
+  lexerUtil)
  (libraries menhirLib)
  (flags -w A-4-70))
 

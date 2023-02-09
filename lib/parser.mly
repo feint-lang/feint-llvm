@@ -43,6 +43,7 @@ open Ast
 %token IF                              "if"
 %token ELSE                            "else"
 %token MATCH                           "match"
+%token PRINT                           "print"
 
 // Types ---------------------------------------------------------------
 
@@ -150,17 +151,19 @@ open Ast
 
 // Grammar -------------------------------------------------------------
 
-%type <Ast.program> program
+%type <Ast.fmodule> fmodule
 %type <Ast.statement list> list(statement)
 %type <Ast.statement> statement
 %type <Ast.expr> expr
 
-%start program
+%start fmodule
 %%
 
-// Program -------------------------------------------------------------
+// Module --------------------------------------------------------------
+//
+// NOTE: All code is wrapped in a module.
 
-program:
+fmodule:
   | statements = list(statement); EOF { statements }
   ;
 
@@ -184,6 +187,7 @@ expr:
   | o = operation { o }
   | a = assignment { a }
   | a = atom { a }
+  | PRINT; e = expr { Print { start = $startpos; expr = e } }
   | LPAREN; e = expr; RPAREN { e }
   ;
 

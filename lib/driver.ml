@@ -5,7 +5,7 @@ module L = MenhirLib.LexerUtil
 module I = UnitActionsParser.MenhirInterpreter
 
 let try_parse lexbuf text =
-  match Parser.program Lexer.read lexbuf with
+  match Parser.fmodule Lexer.read lexbuf with
   | ast -> Some ast
   | exception LexerUtil.Error msg ->
       let pos = LexerUtil.format_pos lexbuf in
@@ -44,7 +44,7 @@ let fallback file_name text =
   let lexbuf = L.init file_name (Lexing.from_string text) in
   let supplier = I.lexer_lexbuf_to_supplier Lexer.read lexbuf in
   let buffer, supplier = E.wrap_supplier supplier in
-  let checkpoint = UnitActionsParser.Incremental.program lexbuf.lex_curr_p in
+  let checkpoint = UnitActionsParser.Incremental.fmodule lexbuf.lex_curr_p in
   I.loop_handle succeed (fail text buffer) supplier checkpoint
 
 (* Entrypoints *)
