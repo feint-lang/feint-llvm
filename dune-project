@@ -23,4 +23,4 @@
  (name feint)
  (synopsis "FeInt")
  (description "FeInt")
- (depends ocaml dune))
+ (depends ocaml dune linenoise))

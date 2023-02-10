@@ -1,9 +1,9 @@
 open Lexing
 open Parser
 
-exception Error of string
+exception LexerErr of string
 
-let raise_err msg = raise (Error msg)
+let raise_err msg = raise (LexerErr msg)
 let curr_pos lexbuf = lexbuf.lex_start_p
 
 (** Increment line number *)

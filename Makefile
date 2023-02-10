@@ -6,6 +6,10 @@ build:
 fmt:
 	dune fmt
 
+.PHONY := repl
+repl:
+	dune exec feint
+
 .PHONY := run
 run-example:
 	dune exec feint example.fi
