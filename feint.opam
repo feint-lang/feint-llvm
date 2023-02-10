@@ -12,7 +12,7 @@ bug-reports: "https://github.com/feint-lang/feint-llvm/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.6"}
-  "linenoiseiXXX"
+  "linenoise"
   "odoc" {with-doc}
 ]
 build: [

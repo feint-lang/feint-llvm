@@ -43,7 +43,7 @@ open Ast
 %token IF                              "if"
 %token ELSE                            "else"
 %token MATCH                           "match"
-%token PRINT                           "print"
+%token PRINT                           "$print"
 
 // Types ---------------------------------------------------------------
 

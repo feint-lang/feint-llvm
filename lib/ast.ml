@@ -111,7 +111,7 @@ let rec display_expr = function
   | Assignment a -> sprintf "%s = %s" a.name (display_expr a.value)
   | Reassignment a -> sprintf "%s <- %s" a.name (display_expr a.value)
   | Block b -> sprintf "block -> %s" (display_expr b.expr)
-  | Print p -> sprintf "print %s" (display_expr p.expr)
+  | Print p -> sprintf "$print %s" (display_expr p.expr)
 
 let display_statement statement =
   let s =

@@ -11,7 +11,7 @@ type stack_val =
   | StrVal of string
 
 let stack = Stack.create ()
-let push_nil = Stack.push NilVal stack
+let push_nil () = Stack.push NilVal stack
 let push_bool b = Stack.push (BoolVal b) stack
 let push_int i = Stack.push (IntVal i) stack
 let push_float f = Stack.push (FloatVal f) stack
@@ -25,12 +25,6 @@ let pop () =
   try Stack.pop stack
   with Stack.Empty -> raise (InterpreterErr "Empty stack (cannot pop)")
 
-let pop_discard () =
-  try
-    let _ = Stack.pop stack in
-    ()
-  with Stack.Empty -> raise (InterpreterErr "Empty stack (cannot pop and discard)")
-
 let display_val = function
   | NilVal -> "nil"
   | BoolVal b -> string_of_bool b
@@ -39,10 +33,9 @@ let display_val = function
   | StrVal s -> sprintf "\"%s\"" s
 
 let display_stack () =
-  eprintf "\nSTACK:\n";
-  Stack.iter (fun v -> eprintf "%s\n" (display_val v)) stack;
-  eprintf "\n";
-  flush stderr
+  prerr_endline "\nSTACK:\n";
+  Stack.iter (fun v -> prerr_endline (display_val v)) stack;
+  prerr_endline ""
 
 let rec int_pow a = function
   | 0 -> 1
@@ -102,15 +95,18 @@ let interpret_sub lhs rhs =
       raise (InterpreterErr msg)
 
 let rec interpret_expr = function
-  | Nil _ -> push_nil
+  | Nil _ -> push_nil ()
   | Bool b -> push_bool b.value
   | Int i -> push_int i.value
   | String s -> push_str s.value
   | BinaryOp op -> interpret_binary_op op.lhs op.op op.rhs
   | Print p ->
       interpret_expr p.expr;
-      printf "%s\n" (display_val (pop ()))
-  | _ -> ()
+      print_endline (display_val (pop ()));
+      push_nil ()
+  | expr ->
+      let msg = sprintf "Unhandled expression: %s" (display_expr expr) in
+      raise (InterpreterErr msg)
 
 and interpret_binary_op lhs op rhs =
   interpret_expr lhs;
@@ -132,46 +128,77 @@ let interpret_statement statement show_result =
   | Comment _ -> ()
   | DocComment _ -> ()
   | Newline -> ()
-  | Expr e -> (
-      flush stderr;
+  | Expr e ->
       interpret_expr e.expr;
-      match show_result with
-      | true ->
-          let top = pop () in
-          printf "%s\n" (display_val top)
-      | false -> pop_discard ())
+      let top = pop () in
+      if show_result && top <> NilVal then
+        prerr_endline (sprintf "-> %s" (display_val top))
 
 let interpret_statements statements show_result =
   List.iter (fun statement -> interpret_statement statement show_result) statements
 
-let handle_line line show_result =
+(* REPL ------------------------------------------------------------- *)
+
+let configure_history () =
+  let rel_path = ".config/feint/repl-history" in
+  try
+    let home = Sys.getenv "HOME" in
+    let path = sprintf "%s/%s" home rel_path in
+    LNoise.history_set ~max_length:512 |> ignore;
+    LNoise.history_load ~filename:path |> ignore;
+    Some path
+  with Not_found ->
+    prerr_endline (sprintf "Could not load history from ${HOME}/%s" rel_path);
+    None
+
+let save_history_entry entry = function
+  | Some path ->
+      LNoise.history_add entry |> ignore;
+      LNoise.history_save ~filename:path |> ignore
+  | None -> ()
+
+let interpret_line line history_path =
+  match Driver.parse_text line with
+  | Ok statements -> (
+      save_history_entry line history_path;
+      try interpret_statements statements true
+      with InterpreterErr msg -> prerr_endline msg)
+  | Error _ -> Driver.handle_err "<repl>" line
+
+let show_help () =
+  [
+    "Feint Help\n";
+    ".help | ? -> show this help";
+    ".exit -> exit";
+    ".stack -> show interpreter stack (top first)";
+  ]
+  |> List.iter prerr_endline
+
+let handle_line line history_path =
   match line with
-  | Some line -> (
-      match line with
-      | ".exit" -> exit 0
-      | ".stack" ->
-          display_stack ();
-          flush stderr
-      | _ -> (
-          let maybe_statements = Driver.parse_text line in
-          match maybe_statements with
-          | Ok statements ->
-              interpret_statements statements show_result;
-              flush stdout
-          | _ -> eprintf "Could not parse line: %s\n" line))
+  | ".help" | "?" -> show_help ()
+  | ".exit" | ".quit" -> exit 0
+  | ".stack" -> display_stack ()
+  | _ -> interpret_line line history_path
+
+let rec read_line () =
+  try LNoise.linenoise "#> "
+  with Sys.Break ->
+    prerr_endline "Use Ctrl-D to exit";
+    read_line ()
+
+let rec repl_loop history_path =
+  match read_line () with
+  | Some line ->
+      handle_line line history_path;
+      repl_loop history_path
   | None -> exit 0
 
-let rec main_loop show_result =
-  Sys.set_signal Sys.sigint
-    (Sys.Signal_handle
-       (fun _ ->
-         eprintf "\nUse Ctrl-D (EOF) or .exit to exit\n";
-         flush stderr;
-         main_loop show_result));
-
-  printf "> ";
-  flush stdout;
-
-  let ic = stdin in
-  handle_line (In_channel.input_line ic) show_result;
-  main_loop show_result
+let start_repl () =
+  [
+    "Welcome to the Feint REPL";
+    "Type a line of code, then hit Enter to evaluate it";
+    "Enter .exit or .quit to exit";
+  ]
+  |> List.iter prerr_endline;
+  repl_loop (configure_history ())

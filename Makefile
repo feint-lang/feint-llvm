@@ -2,6 +2,14 @@
 build:
 	dune build
 
+.PHONY := switch
+switch:
+	opam switch create . --deps-only --with-test --with-doc
+
+.PHONY := update-deps
+update-deps:
+	opam install . --deps-only
+
 .PHONY := fmt
 fmt:
 	dune fmt

@@ -45,7 +45,7 @@ let _ =
       ("if", IF);
       ("else", ELSE);
       ("match", MATCH);
-      ("print", PRINT);
+      ("$print", PRINT);
     ]
 
 let get_keyword word = try Hashtbl.find keywords word with Not_found -> IDENT word

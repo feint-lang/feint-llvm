@@ -9,7 +9,7 @@ let try_parse lexbuf =
   | exception LexerUtil.LexerErr msg ->
       let pos = LexerUtil.format_pos lexbuf in
       let msg = sprintf "Syntax error on %s:\n\n  %s\n" pos msg in
-      eprintf "%s" msg;
+      prerr_endline msg;
       Error msg
   | exception Parser.Error ->
       let pos = LexerUtil.format_pos lexbuf in
@@ -46,7 +46,7 @@ let fail text buffer checkpoint =
   let indication = sprintf "Syntax error %s\n" (E.show (show text) buffer) in
   let message = ParserMessages.message (state checkpoint) in
   let message = E.expand (get text checkpoint) message in
-  eprintf "%s%s%s%!" location indication message
+  prerr_endline (sprintf "%s%s%s%!" location indication message)
 
 let handle_err file_name text =
   let lexbuf = L.init file_name (Lexing.from_string text) in

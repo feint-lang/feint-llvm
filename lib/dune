@@ -9,7 +9,7 @@
   parserMessages
   unitActionsParser
   lexerUtil)
- (libraries menhirLib)
+ (libraries linenoise menhirLib)
  (flags -w A-4-70))
 
 (ocamllex lexer)

@@ -11,7 +11,7 @@ let ascii_lower = ['a' - 'z']
 let ascii_lower_digits = ['a' - 'z' '0' - '9']
 let ascii_lower_digits_underscore = ['a' - 'z' '0' - '9' '_']
 
-let keyword = ascii_lower+
+let keyword = '$'? ascii_lower+
 
 let placeholder_ident = '_'+
 let ident = ascii_lower | ascii_lower ascii_lower_digits_underscore* ascii_lower_digits
