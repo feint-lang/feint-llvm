@@ -30,15 +30,15 @@ let get text checkpoint i =
   | Some (I.Element (_, _, pos1, pos2)) -> show text (pos1, pos2)
   | None -> "???"
 
-let succeed _v = assert false
+let succeed (fmodule : Ast.fmodule) : (Ast.fmodule, string) result = Ok fmodule
 
-let fail text buffer (checkpoint : _ I.checkpoint) =
+let fail text buffer (checkpoint : Ast.fmodule I.checkpoint) =
   let location = L.range (E.last buffer) in
   let indication = sprintf "Syntax error %s.\n" (E.show (show text) buffer) in
   let message = ParserMessages.message (state checkpoint) in
   let message = E.expand (get text checkpoint) message in
-  eprintf "%s%s%s%!" location indication message;
-  exit 1
+  let err = sprintf "%s%s%s%!" location indication message in
+  Error err
 
 let fallback file_name text =
   let lexbuf = L.init file_name (Lexing.from_string text) in
@@ -51,10 +51,12 @@ let fallback file_name text =
 
 let parse_text text =
   let lexbuf = Lexing.from_string text in
-  let ast = try_parse lexbuf text in
-  match ast with Some ast -> Some ast | None -> fallback "<text>" text
+  let maybe_fmodule = try_parse lexbuf text in
+  match maybe_fmodule with Some fmodule -> Ok fmodule | None -> fallback "<text>" text
 
 let parse_file file_name =
   let text, lexbuf = L.read file_name in
-  let ast = try_parse lexbuf text in
-  match ast with Some ast -> Some ast | None -> fallback file_name text
+  let maybe_fmodule = try_parse lexbuf text in
+  match maybe_fmodule with
+  | Some fmodule -> Ok fmodule
+  | None -> fallback file_name text

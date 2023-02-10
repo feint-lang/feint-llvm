@@ -8,8 +8,8 @@ let push_nil = Stack.push NilVal stack
 let push_bool bool = Stack.push (BoolVal bool) stack
 let push_int int = Stack.push (IntVal int) stack
 let push_str str = Stack.push (StrVal str) stack
-let peek = Stack.top stack
-let pop = Stack.pop stack
+let peek () = Stack.top stack
+let pop () = Stack.pop stack
 
 let display_val = function
   | NilVal -> "nil"
@@ -18,9 +18,10 @@ let display_val = function
   | StrVal s -> s
 
 let display_stack () =
-  eprintf "STACK:\n";
+  eprintf "\nSTACK:\n";
   Stack.iter (fun v -> eprintf "%s\n" (display_val v)) stack;
-  eprintf "\n"
+  eprintf "\n";
+  flush stderr
 
 let interpret_add lhs rhs =
   match (lhs, rhs) with Int a, Int b -> push_int (a.value + b.value) | _ -> push_int 0
@@ -36,14 +37,40 @@ let rec interpret_expr = function
   | BinaryOp op -> interpret_binary_op op.lhs op.op op.rhs
   | Print p ->
       interpret_expr p.expr;
-      display_stack ();
-      eprintf "%s\n" (display_val pop)
+      printf "%s\n" (display_val (pop ()))
   | _ -> ()
 
-let interpret_statement = function
+let interpret_statement statement =
+  (match statement with
   | Comment _ -> ()
   | DocComment _ -> ()
   | Expr e -> interpret_expr e.expr
-  | Newline -> ()
+  | Newline -> ());
+  let _ = pop () in
+  ()
 
-let interpret statements = List.iter (fun s -> interpret_statement s) statements
+let interpret_statements statements =
+  List.iter (fun s -> interpret_statement s) statements
+
+let handle_line = function
+  | Some line -> (
+      match line with
+      | ".exit" -> exit 0
+      | ".stack" ->
+          display_stack ();
+          flush stderr
+      | _ -> (
+          let maybe_statements = Driver.parse_text line in
+          match maybe_statements with
+          | Some statements ->
+              interpret_statements statements;
+              flush stdout
+          | None -> eprintf "Could not parse line: %s\n" line))
+  | None -> eprintf "Could not read line from stdin\n"
+
+let rec main_loop () =
+  printf "> ";
+  flush stdout;
+  let ic = stdin in
+  handle_line (In_channel.input_line ic);
+  main_loop ()
