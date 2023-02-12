@@ -18,9 +18,13 @@ let usage = "feint -c <text> -p [file_name_or_arg] ..."
 let process_module fmodule =
   match !print_ast with
   | true -> Ast.display_statements fmodule
-  | false ->
-      let interpreter = new Interpreter.interpreter false in
-      interpreter#interpret fmodule
+  | false -> (
+      try
+        let interpreter = new Interpreter.interpreter false in
+        interpreter#interpret fmodule
+      with Interpreter.InterpreterErr msg ->
+        prerr_endline msg;
+        exit 1)
 
 let () =
   Arg.parse arg_spec args usage;

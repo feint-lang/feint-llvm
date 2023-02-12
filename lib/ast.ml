@@ -2,7 +2,8 @@ open Lexing
 open Printf
 
 type unary_op = NoOp | Negate | Not | AsBool
-type binary_op = Pow | Mul | Div | FloorDiv | Mod | Add | Sub | And | Or | NilOr | Dot
+type binary_op = Pow | Mul | Div | FloorDiv | Mod | Add | Sub | Dot
+type short_circuiting_binary_op = And | Or | NilOr
 
 type compare_op =
   | DollarDollar
@@ -31,6 +32,12 @@ type expr =
   (* Operations *)
   | UnaryOp of { start : position; op : unary_op; operand : expr }
   | BinaryOp of { start : position; lhs : expr; op : binary_op; rhs : expr }
+  | ShortCircuitingBinaryOp of {
+      start : position;
+      lhs : expr;
+      op : short_circuiting_binary_op;
+      rhs : expr;
+    }
   | CompareOp of { start : position; lhs : expr; op : compare_op; rhs : expr }
   | InPlaceOp of { start : position; lhs : expr; op : in_place_op; rhs : expr }
   (* Assignment *)
@@ -64,10 +71,12 @@ let display_binary_op = function
   | Mod -> "%"
   | Add -> "+"
   | Sub -> "-"
+  | Dot -> "."
+
+let display_short_circuiting_binary_op = function
   | And -> "&&"
   | Or -> "||"
   | NilOr -> "??"
-  | Dot -> "."
 
 let display_compare_op = function
   | DollarDollar -> "$$"
@@ -100,6 +109,10 @@ let rec display_expr = function
       let lhs = display_expr op.lhs in
       let rhs = display_expr op.rhs in
       sprintf "%s %s %s" lhs (display_binary_op op.op) rhs
+  | ShortCircuitingBinaryOp op ->
+      let lhs = display_expr op.lhs in
+      let rhs = display_expr op.rhs in
+      sprintf "%s %s %s" lhs (display_short_circuiting_binary_op op.op) rhs
   | CompareOp op ->
       let lhs = display_expr op.lhs in
       let rhs = display_expr op.rhs in

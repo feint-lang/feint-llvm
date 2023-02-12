@@ -18,13 +18,13 @@ false
 0.0
 1.1 + 2.2
 
-name
-$main
+name = 1
+$main = 2
 
-x = 1
-x <- 1
+x = true
+x <- false
 
-x && y
+x && true
 x == 1
 nil ?? "x"
 

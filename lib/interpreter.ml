@@ -5,6 +5,10 @@ exception InterpreterErr of string
 
 let raise_err msg = raise (InterpreterErr msg)
 
+let raise_err_with_pos pos msg =
+  let msg = sprintf "%s: %s" (display_pos pos) msg in
+  raise_err msg
+
 type stack_val =
   | NilVal
   | BoolVal of bool
@@ -33,9 +37,13 @@ let rec int_pow a = function
 class interpreter show_statement_result =
   object (self)
     val stack = Stack.create ()
+    val names = Hashtbl.create 32
     val show_statement_result = show_statement_result
+    method push v = Stack.push v stack
     method push_nil = Stack.push NilVal stack
     method push_bool b = Stack.push (BoolVal b) stack
+    method push_true = Stack.push (BoolVal true) stack
+    method push_false = Stack.push (BoolVal false) stack
     method push_int i = Stack.push (IntVal i) stack
     method push_float f = Stack.push (FloatVal f) stack
     method push_str str = Stack.push (StrVal str) stack
@@ -45,6 +53,12 @@ class interpreter show_statement_result =
 
     method pop =
       try Stack.pop stack with Stack.Empty -> raise_err "Empty stack (cannot pop)"
+
+    method pop_discard =
+      try
+        let _ = Stack.pop stack in
+        ()
+      with Stack.Empty -> raise_err "Empty stack (cannot pop)"
 
     method display_stack =
       match Stack.is_empty stack with
@@ -70,13 +84,37 @@ class interpreter show_statement_result =
       | Nil _ -> self#push_nil
       | Bool b -> self#push_bool b.value
       | Int i -> self#push_int i.value
+      | Float f -> self#push_float f.value
       | String s -> self#push_str s.value
+      | Ident i -> (
+          try
+            let v = Hashtbl.find names i.name in
+            self#push v
+          with Not_found -> raise_err (sprintf "Name not found: %s" i.name))
+      | Assignment a ->
+          self#interpret_expr a.value;
+          Hashtbl.add names a.name self#peek
+      | Reassignment a -> (
+          try
+            let _old_v = Hashtbl.find names a.name in
+            self#interpret_expr a.value;
+            let new_v = self#peek in
+            Hashtbl.add names a.name new_v
+          with Not_found ->
+            raise_err_with_pos a.start
+              (sprintf "Cannot reassign %s because it's not already assigned" a.name))
       | BinaryOp op -> self#interpret_binary_op op.lhs op.op op.rhs
+      | ShortCircuitingBinaryOp op ->
+          self#interpret_short_circuiting_binary_op op.lhs op.op op.rhs
+      | CompareOp op -> self#interpret_compare_op op.lhs op.op op.rhs
+      | Block b -> self#interpret_expr b.expr
       | Print p ->
           self#interpret_expr p.expr;
           print_endline (display_val self#pop);
           self#push_nil
       | expr -> raise_err (sprintf "Unhandled expression: %s" (display_expr expr))
+
+    (* Binary Operations -------------------------------------------- *)
 
     method interpret_binary_op lhs op rhs =
       self#interpret_expr lhs;
@@ -127,6 +165,71 @@ class interpreter show_statement_result =
       | _ ->
           raise_err
             (sprintf "Cannot subtract %s from %s" (debug_val lhs) (debug_val rhs))
+
+    (* Short Circuiting Binary Operations --------------------------- *)
+
+    method interpret_short_circuiting_binary_op lhs op rhs =
+      self#interpret_expr lhs;
+      let lhs = self#pop in
+      match op with
+      | And -> self#interpret_and lhs rhs
+      | Or -> self#interpret_or lhs rhs
+      | NilOr -> self#interpret_nil_or lhs rhs
+
+    method interpret_and lhs rhs =
+      match lhs with
+      | BoolVal true -> (
+          self#interpret_expr rhs;
+          let rhs = self#pop in
+          match rhs with
+          | BoolVal true -> self#push_true
+          | BoolVal false -> self#push_false
+          | _ ->
+              raise_err
+                (sprintf "Cannot apply %s && %s" (debug_val lhs) (debug_val rhs)))
+      | BoolVal false -> self#push_false
+      | _ -> raise_err (sprintf "Cannot apply && to %s" (debug_val lhs))
+
+    method interpret_or lhs rhs =
+      match lhs with
+      | BoolVal true -> self#push_true
+      | BoolVal false -> (
+          self#interpret_expr rhs;
+          let rhs = self#pop in
+          match rhs with
+          | BoolVal true -> self#push_true
+          | BoolVal false -> self#push_false
+          | _ ->
+              raise_err
+                (sprintf "Cannot apply %s || %s" (debug_val lhs) (debug_val rhs)))
+      | _ -> raise_err (sprintf "Cannot apply || to %s" (debug_val lhs))
+
+    method interpret_nil_or lhs rhs =
+      match lhs with NilVal -> self#interpret_expr rhs | _ -> self#push lhs
+
+    (* Comparison Operations ---------------------------------------- *)
+
+    method interpret_compare_op lhs op rhs =
+      self#interpret_expr lhs;
+      self#interpret_expr rhs;
+      let rhs = self#pop in
+      let lhs = self#pop in
+      let result =
+        match op with
+        | EqEq -> self#interpret_eq lhs rhs
+        | op ->
+            raise_err (sprintf "Unhandled comparison op: %s" (display_compare_op op))
+      in
+      self#push_bool result
+
+    method interpret_eq lhs rhs =
+      match (lhs, rhs) with
+      | NilVal, NilVal -> true
+      | BoolVal a, BoolVal b -> a == b
+      | IntVal a, IntVal b -> a == b
+      | FloatVal a, FloatVal b -> a == b
+      | StrVal a, StrVal b -> a == b
+      | _ -> false
   end
 
 (* REPL ------------------------------------------------------------- *)

@@ -203,11 +203,21 @@ block:
   | BLOCK; INLINE_SCOPE_START; e = expr { Block { start = $startpos; expr = e } }
 
 operation:
-  | op = unary_op; a = expr { UnaryOp { start = $startpos; op = op; operand = a } }
-  | a = expr; op = binary_op; b = expr { BinaryOp { start = $startpos; lhs = a; op = op; rhs = b } }
-  | a = expr; op = logic_op; b = expr { BinaryOp { start = $startpos; lhs = a; op = op; rhs = b } }
-  | a = expr; op = compare_op; b = expr { CompareOp { start = $startpos; lhs = a; op = op; rhs = b } }
-  | a = expr; op = in_place_op; b = expr { InPlaceOp { start = $startpos; lhs = a; op = op; rhs = b } }
+  | op = unary_op; a = expr {
+      UnaryOp { start = $startpos; op = op; operand = a }
+    }
+  | a = expr; op = binary_op; b = expr {
+      BinaryOp { start = $startpos; lhs = a; op = op; rhs = b }
+    }
+  | a = expr; op = short_circuiting_binary_op; b = expr {
+      ShortCircuitingBinaryOp { start = $startpos; lhs = a; op = op; rhs = b }
+    }
+  | a = expr; op = compare_op; b = expr {
+      CompareOp { start = $startpos; lhs = a; op = op; rhs = b }
+    }
+  | a = expr; op = in_place_op; b = expr {
+      InPlaceOp { start = $startpos; lhs = a; op = op; rhs = b }
+    }
 
 assignment:
   | i = IDENT; EQ; v = expr { Assignment { start = $startpos; name = i; value = v } }
@@ -242,7 +252,7 @@ atom:
   | DASH { Sub }
   | DOT { Dot }
 
-%inline logic_op:
+%inline short_circuiting_binary_op:
   | AND { And }
   | OR { Or }
   | NIL_OR { NilOr }
