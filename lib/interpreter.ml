@@ -12,25 +12,18 @@ let raise_err_with_pos pos msg =
 type stack_val =
   | NilVal
   | BoolVal of bool
-  | IntVal of int
+  | IntVal of Bigint.t
   | FloatVal of float
   | StrVal of string
 
 let display_val = function
   | NilVal -> "nil"
   | BoolVal b -> string_of_bool b
-  | IntVal i -> string_of_int i
+  | IntVal i -> Bigint.to_string i
   | FloatVal f -> string_of_float f
   | StrVal s -> sprintf "%s" s
 
 let debug_val = function StrVal s -> sprintf "\"%s\"" s | v -> display_val v
-
-let rec int_pow a = function
-  | 0 -> 1
-  | 1 -> a
-  | n ->
-      let b = int_pow a (n / 2) in
-      b * b * if n mod 2 = 0 then 1 else a
 
 (* Interpreter ------------------------------------------------------ *)
 
@@ -85,7 +78,7 @@ class interpreter show_statement_result =
       | Bool b -> self#push_bool b.value
       | Int i -> self#push_int i.value
       | Float f -> self#push_float f.value
-      | String s -> self#push_str s.value
+      | Str s -> self#push_str s.value
       | Ident i -> (
           try
             let v = Hashtbl.find names i.name in
@@ -131,7 +124,7 @@ class interpreter show_statement_result =
 
     method interpret_pow lhs rhs =
       match (lhs, rhs) with
-      | IntVal a, IntVal b -> self#push_int (int_pow a b)
+      | IntVal a, IntVal b -> self#push_int (Bigint.pow a b)
       | FloatVal a, FloatVal b -> self#push_float (a ** b)
       | _ ->
           raise_err
@@ -139,7 +132,7 @@ class interpreter show_statement_result =
 
     method interpret_mul lhs rhs =
       match (lhs, rhs) with
-      | IntVal a, IntVal b -> self#push_int (Int.mul a b)
+      | IntVal a, IntVal b -> self#push_int (Bigint.( * ) a b)
       | FloatVal a, FloatVal b -> self#push_float (Float.mul a b)
       | _ ->
           raise_err
@@ -147,20 +140,20 @@ class interpreter show_statement_result =
 
     method interpret_div lhs rhs =
       match (lhs, rhs) with
-      | IntVal a, IntVal b -> self#push_int (Int.div a b)
+      | IntVal a, IntVal b -> self#push_int (Bigint.( / ) a b)
       | FloatVal a, FloatVal b -> self#push_float (Float.div a b)
       | _ ->
           raise_err (sprintf "Cannot divide %s by %s" (debug_val lhs) (debug_val rhs))
 
     method interpret_add lhs rhs =
       match (lhs, rhs) with
-      | IntVal a, IntVal b -> self#push_int (Int.add a b)
+      | IntVal a, IntVal b -> self#push_int (Bigint.( + ) a b)
       | FloatVal a, FloatVal b -> self#push_float (Float.add a b)
       | _ -> raise_err (sprintf "Cannot add %s to %s" (debug_val lhs) (debug_val rhs))
 
     method interpret_sub lhs rhs =
       match (lhs, rhs) with
-      | IntVal a, IntVal b -> self#push_int (Int.sub a b)
+      | IntVal a, IntVal b -> self#push_int (Bigint.( - ) a b)
       | FloatVal a, FloatVal b -> self#push_float (Float.sub a b)
       | _ ->
           raise_err

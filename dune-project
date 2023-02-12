@@ -24,8 +24,13 @@
  (synopsis "FeInt")
  (description "FeInt")
  (depends
-  ocaml
   dune
+  bignum
   linenoise
+  ocaml
+  (dune-release :with-test)
+  (merlin :with-test)
   (ocamlformat :with-test)
-  (ocaml-lsp-server :with-test)))
+  (ocaml-lsp-server :with-test)
+  (odoc :with-test)
+  (utop :with-test)))

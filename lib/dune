@@ -1,15 +1,6 @@
 (library
  (name feint)
- (modules
-  ast
-  driver
-  interpreter
-  lexer
-  parser
-  parserMessages
-  unitActionsParser
-  lexerUtil)
- (libraries linenoise menhirLib)
+ (libraries bignum linenoise menhirLib)
  (flags -w A-4-70))
 
 (ocamllex lexer)

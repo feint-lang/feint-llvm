@@ -6,8 +6,8 @@ build:
 switch:
 	opam switch create . --deps-only --with-test --with-doc
 
-.PHONY := update-deps
-update-deps:
+.PHONY := update
+update:
 	opam install . --deps-only
 
 .PHONY := fmt

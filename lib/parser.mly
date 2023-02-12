@@ -47,9 +47,9 @@ open Ast
 
 // Types ---------------------------------------------------------------
 
-%token <int> INT
+%token <Bigint.t> INT
 %token <float> FLOAT
-%token <string> STRING
+%token <string> STR
 
 // Identifiers ---------------------------------------------------------
 
@@ -145,7 +145,7 @@ open Ast
 
 %nonassoc BANG_BANG BANG
 %nonassoc LPAREN LBRACE LBRACKET
-%nonassoc NIL TRUE FALSE INT FLOAT STRING
+%nonassoc NIL TRUE FALSE INT FLOAT STR
 %nonassoc PRINT
 
 %left DOT
@@ -233,7 +233,7 @@ atom:
   | FALSE { Bool { start = $startpos; value = false } }
   | v = INT { Int { start = $startpos; value = v } }
   | v = FLOAT { Float { start = $startpos; value = v } }
-  | v = STRING { String { start = $startpos; value = v } }
+  | v = STR { Str { start = $startpos; value = v } }
   | i = ident { i }
 
 // Operations ----------------------------------------------------------

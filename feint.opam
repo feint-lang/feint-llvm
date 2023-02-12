@@ -10,11 +10,16 @@ homepage: "https://github.com/feint-lang/feint-llvm"
 doc: "https://feint-lang.github.io/"
 bug-reports: "https://github.com/feint-lang/feint-llvm/issues"
 depends: [
-  "ocaml"
   "dune" {>= "3.6"}
+  "bignum"
   "linenoise"
+  "ocaml"
+  "dune-release" {with-test}
+  "merlin" {with-test}
   "ocamlformat" {with-test}
   "ocaml-lsp-server" {with-test}
+  "odoc" {with-test}
+  "utop" {with-test}
   "odoc" {with-doc}
 ]
 build: [

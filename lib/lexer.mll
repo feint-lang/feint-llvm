@@ -61,7 +61,7 @@ rule read = parse
   (* Keywords *)
   | keyword as word { get_keyword word }
   (* Types *)
-  | int { INT (int_of_string (Lexing.lexeme lexbuf)) }
+  | int { INT (Bigint.of_string (Lexing.lexeme lexbuf)) }
   | float { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | '"' {
       dec_col_no lexbuf 1;
@@ -131,11 +131,11 @@ and read_doc_comment buf = shortest
 and read_double_quoted_string = shortest
   | (([^ '\\'] | '\\' _)* as str) '"' {
       new_lines lexbuf (count_newlines str);
-      STRING (process_str str)
+      STR (process_str str)
     }
 
 and read_single_quoted_string = shortest
   | (([^ '\\'] | '\\' _)* as str) '\'' {
       new_lines lexbuf (count_newlines str);
-      STRING (process_str str)
+      STR (process_str str)
     }

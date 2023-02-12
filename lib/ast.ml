@@ -23,9 +23,9 @@ type expr =
   (* Types *)
   | Nil of { start : position }
   | Bool of { start : position; value : bool }
-  | Int of { start : position; value : int }
+  | Int of { start : position; value : Bigint.t }
   | Float of { start : position; value : float }
-  | String of { start : position; value : string }
+  | Str of { start : position; value : string }
   (* Identifiers *)
   | Ident of { start : position; name : string }
   | SpecialIdent of { start : position; name : string }
@@ -99,9 +99,9 @@ let display_in_place_op = function
 let rec display_expr = function
   | Nil _ -> "nil"
   | Bool b -> sprintf "%b" b.value
-  | Int i -> sprintf "%i" i.value
+  | Int i -> sprintf "%s" (Bigint.to_string i.value)
   | Float f -> sprintf "%f" f.value
-  | String s -> sprintf "\"%s\"" (String.escaped s.value)
+  | Str s -> sprintf "\"%s\"" (String.escaped s.value)
   | Ident i -> i.name
   | SpecialIdent i -> i.name
   | UnaryOp op -> sprintf "%s%s" (display_unary_op op.op) (display_expr op.operand)
