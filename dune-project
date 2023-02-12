@@ -23,4 +23,9 @@
  (name feint)
  (synopsis "FeInt")
  (description "FeInt")
- (depends ocaml dune linenoise))
+ (depends
+  ocaml
+  dune
+  linenoise
+  (ocamlformat :with-test)
+  (ocaml-lsp-server :with-test)))

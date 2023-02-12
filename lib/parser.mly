@@ -146,6 +146,7 @@ open Ast
 %nonassoc BANG_BANG BANG
 %nonassoc LPAREN LBRACE LBRACKET
 %nonassoc NIL TRUE FALSE INT FLOAT STRING
+%nonassoc PRINT
 
 %left DOT
 
@@ -154,7 +155,13 @@ open Ast
 %type <Ast.fmodule> fmodule
 %type <Ast.statement list> list(statement)
 %type <Ast.statement> statement
+%type <Ast.statement> comment
 %type <Ast.expr> expr
+%type <Ast.expr> block
+%type <Ast.expr> operation
+%type <Ast.expr> assignment
+%type <Ast.expr> ident
+%type <Ast.expr> atom
 
 %start fmodule
 %%

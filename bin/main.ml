@@ -18,7 +18,9 @@ let usage = "feint -c <text> -p [file_name_or_arg] ..."
 let process_module fmodule =
   match !print_ast with
   | true -> Ast.display_statements fmodule
-  | false -> Interpreter.interpret_statements fmodule false
+  | false ->
+      let interpreter = new Interpreter.interpreter false in
+      interpreter#interpret fmodule
 
 let () =
   Arg.parse arg_spec args usage;
@@ -31,4 +33,6 @@ let () =
     match Driver.parse_file file_name with
     | Ok fmodule -> process_module fmodule
     | Error (_, text) -> Driver.handle_err file_name text
-  else Interpreter.start_repl ()
+  else
+    let repl = new Interpreter.repl in
+    repl#start

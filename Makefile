@@ -22,6 +22,15 @@ repl:
 run-example:
 	dune exec feint example.fi
 
+lib/parser.conflicts:
+	menhir --explain lib/parser.mly
+
+.PHONY := clean-explain
+clean-explain:
+	rm lib/parser.conflicts
+	rm lib/parser.ml
+	rm lib/parser.mli
+
 # Parser message file generation/maintenance ---------------------------
 
 parser_file := lib/parser.mly
