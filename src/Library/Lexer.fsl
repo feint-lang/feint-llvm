@@ -1,7 +1,6 @@
 {
-open LexerUtil
-open Parser
-open Printf
+open Feint.Parser
+open Feint.LexerUtil
 }
 
 let ws = [' ' '\t']+
@@ -33,54 +32,42 @@ let float =
   | dec+ ('.' dec+) ['e' 'E'] ['+' '-']? dec+
 
 rule read = parse
-  (* Whitespace *)
+  // Whitespace
   | ws { read lexbuf }
-  | nl ' '+ as indent { new_line lexbuf; INDENT(String.length(indent)) }
+  | nl ' '+ { new_line lexbuf; INDENT(String.length (lexeme lexbuf)) }
   | nl { new_line lexbuf; NL }
-  (* Comments *)
-  | ('#' ([^ '\n']* as comment) ('\n' | eof)) {
+  // Comments
+  | ('#' ([^ '\n']*) ('\n' | eof)) {
       new_line lexbuf;
-      COMMENT (String.trim comment)
+      COMMENT (lexeme lexbuf)
     }
-  | ("//" ([^ '\n']* as comment) ('\n' | eof)) {
+  | ("//" ([^ '\n']*) ('\n' | eof)) {
       new_line lexbuf;
-      DOC_COMMENT (String.trim comment)
+      DOC_COMMENT (lexeme lexbuf)
     }
-  (* Scopes *)
+  // Scopes
   | "->" ws* nl { new_line lexbuf; SCOPE_START }
   | "->" { INLINE_SCOPE_START }
   | "=>" ws* nl { new_line lexbuf; FUNC_START }
   | "=>" { INLINE_FUNC_START }
-  (* Groupings *)
+  // Groupings
   | '(' { LPAREN }
   | ')' { RPAREN }
   | '[' { LBRACE }
   | ']' { RBRACE }
   | '{' { LBRACKET }
   | '}' { RBRACKET }
-  (* Keywords *)
-  | keyword as word { get_keyword word }
-  (* Types *)
-  | int { INT (Bigint.of_string (Lexing.lexeme lexbuf)) }
-  | float { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
-  | '"' {
-      dec_col_no lexbuf 1;
-      try
-        read_double_quoted_string lexbuf
-      with Failure msg ->
-        raise_err (sprintf "Unterminated string literal (%s)" msg)
-    }
-  | '\'' {
-      dec_col_no lexbuf 1;
-      try
-        read_single_quoted_string lexbuf
-      with Failure msg ->
-        raise_err (sprintf "Unterminated string literal (%s)" msg)
-    }
-  (* Identifiers *)
-  | ident as name { IDENT name }
-  | special_ident as name { SPECIAL_IDENT name }
-  (* Operators *)
+  // Keywords
+  // | keyword { get_keyword (lexeme lexbuf) }
+  // Types
+  | int { INT (bigint.Parse (lexeme lexbuf)) }
+  | float { FLOAT (float (lexeme lexbuf)) }
+  | '"' { read_double_quoted_string lexbuf }
+  | '\'' { read_single_quoted_string lexbuf }
+  // Identifiers
+  | ident { IDENT (lexeme lexbuf) }
+  | special_ident { SPECIAL_IDENT (lexeme lexbuf) }
+  // Operators
   | '!' { BANG }
   | "!!" { BANG_BANG }
 
@@ -116,26 +103,21 @@ rule read = parse
   | "/=" { DIV_EQ }
   | "+=" { ADD_EQ }
   | "-=" { SUB_EQ }
-  (* Other *)
-  | _ {  
-      raise_err ("Unexpected character in input stream: " ^ Lexing.lexeme lexbuf)
-    }
+
   | eof { EOF }
 
-and read_comment buf = shortest
-  | [^ '\n']* as str { COMMENT str }
+  | _ { raise_err $"Unexpected character in input stream: {lexeme lexbuf}" }
 
-and read_doc_comment buf = shortest
-  | [^ '\n']* as str { DOC_COMMENT str }
-
-and read_double_quoted_string = shortest
-  | (([^ '\\'] | '\\' _)* as str) '"' {
-      new_lines lexbuf (count_newlines str);
-      STR (process_str str)
+and read_double_quoted_string = parse
+  | eof { raise_err "Unterminated string literal" }
+  | ([^ '\\'] | '\\' _)* '"' {
+      new_lines_from_lexeme lexbuf
+      STR (process_str (lexeme lexbuf))
     }
 
-and read_single_quoted_string = shortest
-  | (([^ '\\'] | '\\' _)* as str) '\'' {
-      new_lines lexbuf (count_newlines str);
-      STR (process_str str)
+and read_single_quoted_string = parse
+  | eof { raise_err "Unterminated string literal" }
+  | ([^ '\\'] | '\\' _)* '\'' {
+      new_lines_from_lexeme lexbuf
+      STR (process_str (lexeme lexbuf))
     }

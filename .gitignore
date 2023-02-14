@@ -3,3 +3,10 @@
 /lib/parser.conflicts
 /lib/parser.ml
 /lib/parser.mli
+
+.dotnet/
+.fake
+.packages/
+.tools/
+bin/
+obj/

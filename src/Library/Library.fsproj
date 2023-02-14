@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FsLexYacc" Version="11.0.1" />
+
+    <FsYacc Include="Parser.fsy">
+      <OtherFlags>--module Feint.Parser</OtherFlags>
+    </FsYacc>
+
+    <FsLex Include="Lexer.fsl">
+      <OtherFlags>--module Feint.Lexer --unicode</OtherFlags>
+    </FsLex>
+
+    <Compile Include="Ast.fs" />
+
+    <Compile Include="Parser.fsi" />
+    <Compile Include="Parser.fs" />
+
+    <Compile Include="LexerUtil.fs" />
+    <Compile Include="Lexer.fs" />
+
+    <Compile Include="Interpreter.fs" />
+    <Compile Include="Driver.fs" />
+  </ItemGroup>
+</Project>
