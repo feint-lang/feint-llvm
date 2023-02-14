@@ -3,11 +3,10 @@ module Feint.Interpreter
 open System
 open System.Collections.Generic
 
-open FSharp.Text
 open FSharp.Text.Lexing
 
-open Feint
 open Feint.Ast
+open Feint.ParserUtil
 
 exception InterpreterErr of string
 
@@ -89,7 +88,7 @@ type Interpreter(show_statement_result) =
         | Float v -> pushFloat v
         | Str v -> pushStr v
         | Ident name ->
-            match (names.TryGetValue name) with
+            match names.TryGetValue name with
             | true, v -> push (v)
             | _ -> raiseErr $"Name not found: {name}"
         | Assignment a ->
@@ -233,21 +232,6 @@ type Interpreter(show_statement_result) =
 
 // REPL ----------------------------------------------------------------
 
-let try_parse lexbuf =
-    try
-        Ok(Parser.Module Lexer.read lexbuf)
-    with
-    | LexerUtil.LexerErr msg ->
-        let pos = LexerUtil.format_pos lexbuf
-        Error $"Syntax error on {pos}: {msg}"
-    | _ ->
-        let pos = LexerUtil.format_pos lexbuf
-        Error $"Parse error on {pos}"
-
-let parse_text text =
-    let lexbuf = LexBuffer<_>.FromString text
-    try_parse lexbuf
-
 type REPL() =
     let interpreter = Interpreter(true)
     let mutable history_path: string option = None
@@ -282,8 +266,12 @@ type REPL() =
             None
 
     let interpret_line (line: string) : option<int> =
-        match parse_text line with
-        | Ok statements -> interpreter.interpret statements
+        match parseText line with
+        | Ok statements ->
+            try
+                interpreter.interpret statements
+            with InterpreterErr msg ->
+                Console.Error.WriteLine msg
         | Error msg -> Console.Error.WriteLine msg
 
         None

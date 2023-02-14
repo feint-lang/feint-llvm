@@ -23,6 +23,8 @@
     <Compile Include="LexerUtil.fs" />
     <Compile Include="Lexer.fs" />
 
+    <Compile Include="ParserUtil.fs" />
+
     <Compile Include="Interpreter.fs" />
     <Compile Include="Driver.fs" />
   </ItemGroup>

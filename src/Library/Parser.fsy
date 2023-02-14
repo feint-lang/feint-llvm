@@ -164,7 +164,7 @@ open Feint
 // NOTE: All code is wrapped in a module.
 
 Module:
-  | StatementList EOF { $1 }
+  | StatementList EOF { List.rev $1 }
 
 // Statements ----------------------------------------------------------
 

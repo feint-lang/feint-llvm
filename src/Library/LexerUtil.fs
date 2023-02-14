@@ -41,7 +41,7 @@ let format_pos lexbuf =
 
 // Keywords
 let keywords =
-    dict
+    Map.ofList
         [ ("nil", NIL)
           ("true", TRUE)
           ("false", FALSE)
@@ -53,7 +53,7 @@ let keywords =
 
 let get_keyword word =
     match keywords.TryGetValue word with
-    | true, keyword_token -> keyword_token
+    | true, token -> token
     | _ -> IDENT word
 
 let process_str (str: string) =

@@ -58,7 +58,7 @@ rule read = parse
   | '{' { LBRACKET }
   | '}' { RBRACKET }
   // Keywords
-  // | keyword { get_keyword (lexeme lexbuf) }
+  | keyword { get_keyword (lexeme lexbuf) }
   // Types
   | int { INT (bigint.Parse (lexeme lexbuf)) }
   | float { FLOAT (float (lexeme lexbuf)) }

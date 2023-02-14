@@ -1,4 +1,7 @@
-﻿open Feint.Interpreter
+﻿open System
+
+open Feint.Interpreter
+open Feint.ParserUtil
 
 [<EntryPoint>]
 let main args =
@@ -19,5 +22,15 @@ let main args =
 
     // print_statements statements
 
-    let repl = REPL()
-    repl.start ()
+    if args.Length = 1 then
+        match parseFile args.[0] with
+        | Ok statements ->
+            let i = Interpreter false
+            i.interpret statements
+            0
+        | Error msg ->
+            Console.Error.WriteLine msg
+            -1
+    else
+        let repl = REPL()
+        repl.start ()

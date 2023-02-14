@@ -492,7 +492,7 @@ let _fsyacc_reductions = lazy [|
                 (
                    (
 # 167 "Parser.fsy"
-                                             _1 
+                                             List.rev _1 
                    )
 # 167 "Parser.fsy"
                  : Ast.Statement list));
