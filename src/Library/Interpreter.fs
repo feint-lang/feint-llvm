@@ -233,10 +233,20 @@ type Interpreter(show_statement_result) =
 
 // REPL ----------------------------------------------------------------
 
-let try_parse lexbuf = Parser.Module Lexer.read lexbuf
+let try_parse lexbuf =
+    try
+        Ok(Parser.Module Lexer.read lexbuf)
+    with
+    | LexerUtil.LexerErr msg ->
+        let pos = LexerUtil.format_pos lexbuf
+        Error $"Syntax error on {pos}: {msg}"
+    | _ ->
+        let pos = LexerUtil.format_pos lexbuf
+        Error $"Parse error on {pos}"
 
 let parse_text text =
-    let lexbuf = LexBuffer<_>.FromString text in try_parse lexbuf
+    let lexbuf = LexBuffer<_>.FromString text
+    try_parse lexbuf
 
 type REPL() =
     let interpreter = Interpreter(true)
@@ -272,8 +282,10 @@ type REPL() =
             None
 
     let interpret_line (line: string) : option<int> =
-        let m = parse_text line
-        interpreter.interpret m
+        match parse_text line with
+        | Ok statements -> interpreter.interpret statements
+        | Error msg -> Console.Error.WriteLine msg
+
         None
 
     let handle_line (line: string) =

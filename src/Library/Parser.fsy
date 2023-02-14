@@ -188,6 +188,8 @@ Expr:
   | Operation { $1 }
   | Assignment { $1 }
   | Atom { $1 }
+  | PRINT Expr { Ast.Print [ $2 ] }
+  | LPAREN Expr RPAREN { $2 }
 
 Block:
   | BLOCK SCOPE_START StatementList { Ast.Block $3 }
