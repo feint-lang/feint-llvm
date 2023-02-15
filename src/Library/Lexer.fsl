@@ -4,7 +4,7 @@ open Feint.LexerUtil
 }
 
 let ws = [' ' '\t']+
-let nl = '\n' | "\r\n"
+let nl = "\r\n" | '\n'
 
 let ascii_lower = ['a' - 'z']
 let ascii_lower_digits = ['a' - 'z' '0' - '9']
@@ -28,13 +28,51 @@ let int_16 = "0x" hex+
 let int = ['+' '-']? int_10 | int_02 | int_08 | int_16
 
 let float =
-    dec+ '.' dec+
+  dec+ '.' dec+
   | dec+ ('.' dec+) ['e' 'E'] ['+' '-']? dec+
+
+let operator =
+  // Unary
+  '!'
+  | "!!"
+  // Binary
+  | '^'
+  | '*'
+  | '/'
+  | "//"
+  | '%'
+  | '+'
+  | '-'
+  // Short Circuit
+  | "&&"
+  | "||"
+  | "??"
+  // Compare
+  | "$$"
+  | "$!"
+  | "==="
+  | "!=="
+  | "=="
+  | "!="
+  | "<"
+  | "<="
+  | ">"
+  | ">="
+  // In Place
+  | "*="
+  | "/="
+  | "+="
+  | "-="
+  // Assignment
+  | '='
+  | "<-"
+  // Other
+  | '.'
+  | ','
 
 rule read = parse
   // Whitespace
   | ws { read lexbuf }
-  | nl ' '+ { new_line lexbuf; INDENT(String.length (lexeme lexbuf)) }
   | nl { new_line lexbuf; NL }
   // Comments
   | ('#' ([^ '\n']*) ('\n' | eof)) {
@@ -68,56 +106,15 @@ rule read = parse
   | ident { IDENT (lexeme lexbuf) }
   | special_ident { SPECIAL_IDENT (lexeme lexbuf) }
   // Operators
-  | '!' { BANG }
-  | "!!" { BANG_BANG }
-
-  | '^' { CARET }
-  | '*' { STAR }
-  | '/' { SLASH }
-  | "//" { DOUBLE_SLASH }
-  | '%' { PERCENT }
-  | '+' { PLUS }
-  | '-' { DASH }
-
-  | '=' { EQ }
-  | "<-" { FEED }
-
-  | '.' { DOT }
-  | ',' { COMMA }
-
-  | "$$" { DOLLAR_DOLLAR }
-  | "$!" { DOLLAR_NOT }
-  | "===" { EQ_EQ_EQ }
-  | "!==" { NOT_EQ_EQ }
-  | "==" { EQ_EQ }
-  | "!=" { NOT_EQ }
-  | "&&" { AND }
-  | "||" { OR }
-  | "??" { NIL_OR }
-  | "<" { LT }
-  | "<=" { LT_OR_EQ }
-  | ">" { GT }
-  | ">=" { GT_OR_EQ }
-
-  | "*=" { MUL_EQ }
-  | "/=" { DIV_EQ }
-  | "+=" { ADD_EQ }
-  | "-=" { SUB_EQ }
-
+  | operator { operators.[lexeme lexbuf] }
   | eof { EOF }
-
   | _ { raise_err $"Unexpected character in input stream: {lexeme lexbuf}" }
 
 and read_double_quoted_string = parse
   | eof { raise_err "Unterminated string literal" }
-  | ([^ '\\'] | '\\' _)* '"' {
-      new_lines_from_lexeme lexbuf
-      STR (process_str (lexeme lexbuf))
-    }
+  | ('\\' _ | [^ '\\'])* '"' { STR (process_str lexbuf) }
+  | ('\\' _ | [^ '\\'])* { raise_err "Unterminated string literal" }
 
 and read_single_quoted_string = parse
-  | eof { raise_err "Unterminated string literal" }
-  | ([^ '\\'] | '\\' _)* '\'' {
-      new_lines_from_lexeme lexbuf
-      STR (process_str (lexeme lexbuf))
-    }
+  | ('\\' _ | [^ '\\'])* '\'' { STR (process_str lexbuf) }
+  | ('\\' _ | [^ '\\'])* { raise_err "Unterminated string literal" }

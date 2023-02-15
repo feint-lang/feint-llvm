@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{94D20B9C-C3F
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Library", "src\Library\Library.fsproj", "{97758136-58B4-4A9E-ADEE-4F9A2E44C4CD}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Feint", "Feint.fsproj", "{CC0234DE-FC05-4F4F-9029-C98185C91C48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{97758136-58B4-4A9E-ADEE-4F9A2E44C4CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97758136-58B4-4A9E-ADEE-4F9A2E44C4CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97758136-58B4-4A9E-ADEE-4F9A2E44C4CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC0234DE-FC05-4F4F-9029-C98185C91C48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC0234DE-FC05-4F4F-9029-C98185C91C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC0234DE-FC05-4F4F-9029-C98185C91C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC0234DE-FC05-4F4F-9029-C98185C91C48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{97758136-58B4-4A9E-ADEE-4F9A2E44C4CD} = {94D20B9C-C3FC-4738-9FA3-DBE442E55DA8}

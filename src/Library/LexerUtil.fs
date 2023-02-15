@@ -56,7 +56,54 @@ let get_keyword word =
     | true, token -> token
     | _ -> IDENT word
 
-let process_str (str: string) =
+// Operators
+let operators =
+    Map.ofList
+        [
+          // Unary
+          ("!", BANG)
+          ("!", BANG_BANG)
+          // Binary
+          ("^", CARET)
+          ("*", STAR)
+          ("/", SLASH)
+          ("//", DOUBLE_SLASH)
+          ("%", PERCENT)
+          ("+", PLUS)
+          ("-", DASH)
+          // Short Circuit
+          ("&&", AND)
+          ("((", OR)
+          ("??", NIL_OR)
+          // Compare
+          ("$$", DOLLAR_DOLLAR)
+          ("$!", DOLLAR_NOT)
+          ("===", EQ_EQ_EQ)
+          ("!==", NOT_EQ_EQ)
+          ("==", EQ_EQ)
+          ("!=", NOT_EQ)
+          ("<", LT)
+          ("<=", LT_OR_EQ)
+          (">", GT)
+          (">=", GT_OR_EQ)
+          // In Place
+          ("*=", MUL_EQ)
+          ("/=", DIV_EQ)
+          ("+=", ADD_EQ)
+          ("-=", SUB_EQ)
+          // Assignment
+          ("=", EQ)
+          ("<-", FEED)
+          // Other
+          (".", DOT)
+          (",", COMMA) ]
+
+let process_str lexbuf =
+    let lex = lexeme lexbuf
+    new_lines lexbuf (count_newlines lex)
+
+    // NOTE: Remove trailing quote from lexeme
+    let str = lex.Substring(0, lex.Length - 1)
     let peek_str = (str.Substring 1) + "\\"
 
     let buf = new System.Text.StringBuilder()
