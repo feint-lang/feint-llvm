@@ -10,9 +10,6 @@ open Feint.ParserUtil
 
 exception InterpreterErr of string
 
-let formatPos pos =
-    $"{pos.pos_lnum}:{(pos.pos_cnum - pos.pos_bol + 1)}"
-
 let raiseErr msg = raise (InterpreterErr msg)
 
 type StackVal =
@@ -114,7 +111,7 @@ type Interpreter(show_statement_result) =
             printfn $"{args}"
             pushNil ()
         | expr ->
-            let msg = format_expr expr
+            let msg = formatExpr expr
             raiseErr $"Unhandled expression: {msg}"
 
     // Binary Operations -----------------------------------------------
@@ -132,7 +129,7 @@ type Interpreter(show_statement_result) =
         | Div -> this.interpret_div lhs rhs
         | Add -> this.interpret_add lhs rhs
         | Sub -> this.interpret_sub lhs rhs
-        | op -> raiseErr $"Unhandled binary op: {format_binary_op op}"
+        | op -> raiseErr $"Unhandled binary op: {formatBinaryOp op}"
 
     member this.interpret_pow lhs rhs =
         match (lhs, rhs) with
@@ -217,7 +214,7 @@ type Interpreter(show_statement_result) =
         let result =
             match op with
             | EqEq -> this.interpret_eq lhs rhs
-            | op -> raiseErr $"Unhandled comparison op: {format_compare_op op}"
+            | op -> raiseErr $"Unhandled comparison op: {formatCompareOp op}"
 
         pushBool result
 

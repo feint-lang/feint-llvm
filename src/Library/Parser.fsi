@@ -57,6 +57,7 @@ type token =
   | DOC_COMMENT of (string)
   | COMMENT of (string)
   | EOF
+  | DEDENT
   | INDENT of (int)
   | NL
 type tokenId = 
@@ -116,6 +117,7 @@ type tokenId =
     | TOKEN_DOC_COMMENT
     | TOKEN_COMMENT
     | TOKEN_EOF
+    | TOKEN_DEDENT
     | TOKEN_INDENT
     | TOKEN_NL
     | TOKEN_end_of_input

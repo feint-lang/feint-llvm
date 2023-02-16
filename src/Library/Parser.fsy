@@ -1,13 +1,13 @@
 %{
 open Feint
-
-exception ParseErr of string
+open Feint.Util
 %}
 
 // Whitespace ----------------------------------------------------------
 
 %token NL
 %token <int> INDENT
+%token DEDENT
 %token EOF
 
 // Comments ------------------------------------------------------------
@@ -166,17 +166,18 @@ exception ParseErr of string
 // NOTE: All code is wrapped in a module.
 
 Module:
-  | StatementList EOF { List.rev $1 }
+  | EOF { [] }
+  | StatementList { dprintn "statement list"; List.rev $1 }
 
 // Statements ----------------------------------------------------------
 
 StatementList:
-  | Statement { [$1] }
-  | StatementList NL Statement { $3 :: $1 }
+  | Statement NL { dprintn "statement"; [$1] }
+  | StatementList NL Statement { dprintn "statement list NL statement"; $3 :: $1 }
 
 Statement:
   | Comment { $1 }
-  | Expr { Ast.ExprStatement $1 }
+  | Expr NL { Ast.ExprStatement $1 }
 
 Comment:
   | COMMENT { Ast.Comment $1 }

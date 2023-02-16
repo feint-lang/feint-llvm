@@ -1,5 +1,8 @@
-﻿open PowerArgs
+﻿open FSharp.Text.Lexing
 
+open PowerArgs
+
+open Feint
 open Feint.Interpreter
 open Feint.ParserUtil
 
@@ -26,34 +29,62 @@ type Argv() =
     [<ArgPosition(0)>]
     member val fileName = "" with get, set
 
-    member this.interpret statements =
-        match statements with
-        | Ok statements ->
-            let intepreter = Interpreter false
+    [<ArgDescription("Print tokens")>]
+    [<ArgShortcut("-t")>]
+    [<ArgShortcut("--tokens")>]
+    member val tokens = false with get, set
 
-            try
-                intepreter.interpret statements
+    [<ArgDescription("Print AST instead of interpreting when running code or file")>]
+    [<ArgShortcut("-a")>]
+    [<ArgShortcut("--ast")>]
+    member val ast = false with get, set
+
+    member this.interpret maybeStatements =
+        match maybeStatements with
+        | Ok statements ->
+            match this.ast with
+            | true ->
+                Ast.printStatements statements
                 0
-            with InterpreterErr msg ->
-                eprintfn "Error: %s" msg
-                1
+            | false ->
+                let intepreter = Interpreter false
+
+                try
+                    intepreter.interpret statements
+                    0
+                with InterpreterErr msg ->
+                    eprintfn "Error: %s" msg
+                    1
         | Error msg ->
             // Lex or parse error
             eprintfn "%s" msg
             2
 
     member this.Main() : unit =
-        let exit_code =
+        let exitCode =
             match this.code with
             | null ->
                 match this.fileName with
+                // Launch REPL
                 | null ->
                     let repl = REPL()
                     repl.start ()
-                | _ -> this.interpret (parseFile this.fileName)
-            | _ -> this.interpret (parseText this.code)
+                // Run file
+                | _ ->
+                    match this.tokens with
+                    | true ->
+                        printTokens (lexbufForFile this.fileName)
+                        0
+                    | false -> this.interpret (parseFile this.fileName)
+            // Run code
+            | _ ->
+                match this.tokens with
+                | true ->
+                    printTokens (lexbufForText this.code "<code>")
+                    0
+                | false -> this.interpret (parseText this.code)
 
-        raise (Exit exit_code)
+        raise (Exit exitCode)
 
 [<EntryPoint>]
 let main argv =
@@ -80,5 +111,5 @@ let main argv =
             | _ ->
                 // This will happen when bad args are passed
                 255
-    with Exit exit_code ->
-        exit_code
+    with Exit exitCode ->
+        exitCode

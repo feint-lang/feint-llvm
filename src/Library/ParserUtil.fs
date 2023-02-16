@@ -4,32 +4,54 @@ open System.IO
 open FSharp.Text.Lexing
 
 open Feint
+open Feint.LexerUtil
 
-let tryParse lexbuf =
+let tryParse lexbuf fileName =
     try
         Ok(Parser.Module Lexer.read lexbuf)
     with
     | LexerUtil.LexerErr msg ->
-        let pos = LexerUtil.format_pos lexbuf
-        Error $"Syntax error on {pos}: {msg}"
-    | _ ->
-        let pos = LexerUtil.format_pos lexbuf
-        Error $"Parse error on {pos}"
+        let pos = formatPos lexbuf
+        Error($"Syntax error in {fileName} on {pos}: {msg}")
+    | exc ->
+        let pos = formatPos lexbuf
+        Error($"Parse error in {fileName} on {pos}:\n\n{exc}")
 
-let initLexbuf (lexbuf: LexBuffer<_>) file_name =
+
+let initLexbuf (lexbuf: LexBuffer<char>) fileName =
     lexbuf.EndPos <-
         { pos_bol = 0
-          pos_fname = file_name
-          pos_cnum = 1
-          pos_lnum = 1
-          pos_orig_lnum = 1 }
+          pos_fname = fileName
+          pos_cnum = 0
+          pos_lnum = 0
+          pos_orig_lnum = 0 }
 
-let parseFile file_name =
-    let lexbuf = LexBuffer<_>.FromTextReader(File.OpenText(file_name))
-    initLexbuf lexbuf file_name
-    tryParse lexbuf
+    lexbuf
 
-let parseText text =
-    let lexbuf = LexBuffer<_>.FromString text
-    initLexbuf lexbuf "<text>"
-    tryParse lexbuf
+let lexbufForText text fileName =
+    let lexbuf = LexBuffer<char>.FromString text
+    initLexbuf lexbuf fileName
+
+let lexbufForFile fileName =
+    let stream = File.OpenText(fileName)
+    let lexbuf = LexBuffer<char>.FromTextReader(stream)
+    initLexbuf lexbuf fileName
+
+let parseText (text: string) =
+    let fileName = "<text>"
+    let lexbuf = lexbufForText text fileName
+    tryParse lexbuf fileName
+
+let parseFile fileName =
+    let lexbuf = lexbufForFile fileName
+    tryParse lexbuf fileName
+
+let printTokens lexbuf =
+    let rec read () =
+        match Lexer.read lexbuf with
+        | Parser.EOF -> eprintfn "EOF @ %s" (formatPosShort lexbuf)
+        | token ->
+            eprintfn "%A @ %s" token (formatPosShort lexbuf)
+            read ()
+
+    read ()

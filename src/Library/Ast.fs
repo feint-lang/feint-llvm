@@ -88,14 +88,14 @@ and Reassignment = { name: string; value: Expr }
 
 // Display -------------------------------------------------------------
 
-let format_unary_op =
+let formatUnaryOp =
     function
     | NoOp -> "+"
     | Negate -> "-"
     | Not -> "!"
     | AsBool -> "!!"
 
-let format_binary_op =
+let formatBinaryOp =
     function
     | Pow -> "^"
     | Mul -> "*"
@@ -106,13 +106,13 @@ let format_binary_op =
     | Sub -> "-"
     | Dot -> "."
 
-let format_short_circuit_op =
+let formatShortCircuitOp =
     function
     | And -> "&&"
     | Or -> "||"
     | NilOr -> "??"
 
-let format_compare_op =
+let formatCompareOp =
     function
     | DollarDollar -> "$$"
     | DollarNot -> "$!"
@@ -125,22 +125,22 @@ let format_compare_op =
     | GreaterThan -> ">"
     | GreaterThanEq -> ">="
 
-let format_in_place_op =
+let formatInPlaceOp =
     function
     | MulEq -> "*="
     | DivEq -> "/="
     | AddEq -> "+="
     | SubEq -> "-="
 
-let make_indent level = String.replicate (level * 4) " "
+let makeIndent level = String.replicate (level * 4) " "
 
-let rec format_statements statements level =
-    let formatter = fun statement -> format_statement statement level
+let rec formatStatements statements level =
+    let formatter = fun statement -> formatStatement statement level
     let statements = List.map formatter statements
     String.concat "" statements
 
-and format_statement statement level =
-    let indent = make_indent level
+and formatStatement statement level =
+    let indent = makeIndent level
 
     let result =
         match statement with
@@ -149,16 +149,16 @@ and format_statement statement level =
         | Return maybe_expr ->
             match maybe_expr with
             | Some expr ->
-                let expr = (format_expr expr level)
+                let expr = (formatExpr expr level)
                 $"return {expr}"
             | None -> "return"
-        | ExprStatement expr -> (format_expr expr level)
+        | ExprStatement expr -> (formatExpr expr level)
         | Newline -> ""
 
     $"{indent}{result.TrimEnd()}\n"
 
-and format_expr expr level =
-    let indent = make_indent level
+and formatExpr expr level =
+    let indent = makeIndent level
 
     match expr with
     // Types
@@ -168,28 +168,28 @@ and format_expr expr level =
     | Float v -> v.ToString()
     | Str v -> v
     // Operations
-    | UnaryOp op -> $"{format_unary_op op.op}{format_expr op.rhs level}"
-    | BinaryOp op -> $"{format_bin_op_expr op.lhs (format_binary_op op.op) op.rhs}"
-    | ShortCircuitOp op -> $"{format_bin_op_expr op.lhs (format_short_circuit_op op.op) op.rhs}"
-    | CompareOp op -> $"{format_bin_op_expr op.lhs (format_compare_op op.op) op.rhs}"
-    | InPlaceOp op -> $"{format_bin_op_expr op.lhs (format_in_place_op op.op) op.rhs}"
+    | UnaryOp op -> $"{formatUnaryOp op.op}{formatExpr op.rhs level}"
+    | BinaryOp op -> $"{formatBinOpExpr op.lhs (formatBinaryOp op.op) op.rhs}"
+    | ShortCircuitOp op -> $"{formatBinOpExpr op.lhs (formatShortCircuitOp op.op) op.rhs}"
+    | CompareOp op -> $"{formatBinOpExpr op.lhs (formatCompareOp op.op) op.rhs}"
+    | InPlaceOp op -> $"{formatBinOpExpr op.lhs (formatInPlaceOp op.op) op.rhs}"
     // Assignments
     | Ident name -> name
     | SpecialIdent name -> name
     // Blocks
     | Block statements ->
-        let statements = format_statements statements (level + 1)
+        let statements = formatStatements statements (level + 1)
         $"\n{indent}block ->\n{statements}"
     // Print
     | Print args ->
-        let formatter = fun expr -> format_expr expr 0
+        let formatter = fun expr -> formatExpr expr 0
         let args = String.concat ", " (List.map formatter args)
         $"$print {args}"
     | _ -> "unknown expr"
 
-and format_bin_op_expr lhs op rhs level =
-    $"{format_expr lhs level} {op} {format_expr rhs level}"
+and formatBinOpExpr lhs op rhs level =
+    $"{formatExpr lhs level} {op} {formatExpr rhs level}"
 
-let print_statements statements =
-    let statements = (format_statements statements 0)
+let printStatements statements =
+    let statements = (formatStatements statements 0)
     printfn $"{statements.TrimEnd()}"

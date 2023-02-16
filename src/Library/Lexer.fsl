@@ -1,10 +1,11 @@
 {
 open Feint.Parser
 open Feint.LexerUtil
+open Feint.Util
 }
 
-let ws = [' ' '\t']+
-let nl = "\r\n" | '\n'
+let ws = [' ' '\r' '\t']+
+let nl = '\n'
 
 let ascii_lower = ['a' - 'z']
 let ascii_lower_digits = ['a' - 'z' '0' - '9']
@@ -30,6 +31,10 @@ let int = ['+' '-']? int_10 | int_02 | int_08 | int_16
 let float =
   dec+ '.' dec+
   | dec+ ('.' dec+) ['e' 'E'] ['+' '-']? dec+
+
+let escaped_char = '\\' _
+let single_quoted_str_char = escaped_char | [^ '\'' '\\']
+let double_quoted_str_char = escaped_char | [^ '"' '\\']
 
 let operator =
   // Unary
@@ -72,21 +77,41 @@ let operator =
 
 rule read = parse
   // Whitespace
-  | ws { read lexbuf }
-  | nl { new_line lexbuf; NL }
+  | ws+ [^ '\n'] { dprintn "skip ws"; read lexbuf }
+  | ws* nl {
+      let col = lexbuf.StartPos.Column
+      // dprint $"ws* nl @ {formatPosShort lexbuf} -> "
+      newLine lexbuf
+      match col with
+      | 0 -> read lexbuf
+      | _ -> NL
+    }
+  | ws* eof {
+      // When EOF is found at the end of a blank line, EOF is emitted.
+      // The only case where this is relevant is when the input is empty
+      // or consists entirely of blank lines.
+      //
+      // When EOF is found at the end of a line containing other tokens,
+      // NL is emitted so that the parser can be simplified by not
+      // having to handle EOF specially.
+      // dprint $"ws* eof @ {formatPosShort lexbuf} -> "
+      match lexbuf.StartPos.Column with
+      | 0 -> EOF
+      | _ -> dprintn "emit EOF NL"; NL
+    }
   // Comments
   | ('#' ([^ '\n']*) ('\n' | eof)) {
-      new_line lexbuf;
+      newLine lexbuf;
       COMMENT (lexeme lexbuf)
     }
   | ("//" ([^ '\n']*) ('\n' | eof)) {
-      new_line lexbuf;
+      newLine lexbuf;
       DOC_COMMENT (lexeme lexbuf)
     }
   // Scopes
-  | "->" ws* nl { new_line lexbuf; SCOPE_START }
+  | "->" ws* nl { newLine lexbuf; SCOPE_START }
   | "->" { INLINE_SCOPE_START }
-  | "=>" ws* nl { new_line lexbuf; FUNC_START }
+  | "=>" ws* nl { newLine lexbuf; FUNC_START }
   | "=>" { INLINE_FUNC_START }
   // Groupings
   | '(' { LPAREN }
@@ -95,26 +120,18 @@ rule read = parse
   | ']' { RBRACE }
   | '{' { LBRACKET }
   | '}' { RBRACKET }
-  // Keywords
-  | keyword { get_keyword (lexeme lexbuf) }
-  // Types
-  | int { INT (bigint.Parse (lexeme lexbuf)) }
-  | float { FLOAT (float (lexeme lexbuf)) }
-  | '"' { read_double_quoted_string lexbuf }
-  | '\'' { read_single_quoted_string lexbuf }
+  // Keywords (includes types such as nil and bool)
+  | keyword { getKeyword (lexeme lexbuf) }
   // Identifiers
   | ident { IDENT (lexeme lexbuf) }
   | special_ident { SPECIAL_IDENT (lexeme lexbuf) }
+  // Types
+  | int { INT (bigint.Parse (lexeme lexbuf)) }
+  | float { FLOAT (float (lexeme lexbuf)) }
+  | '\'' single_quoted_str_char* '\'' { STR (processStr lexbuf) }
+  | '\'' single_quoted_str_char* { raiseErr "Unterminated single-quoted string literal" }
+  | '"' double_quoted_str_char* '"' { STR (processStr lexbuf) }
+  | '"' double_quoted_str_char* { raiseErr "Unterminated double-quoted string literal" }
   // Operators
   | operator { operators.[lexeme lexbuf] }
-  | eof { EOF }
-  | _ { raise_err $"Unexpected character in input stream: {lexeme lexbuf}" }
-
-and read_double_quoted_string = parse
-  | eof { raise_err "Unterminated string literal" }
-  | ('\\' _ | [^ '\\'])* '"' { STR (process_str lexbuf) }
-  | ('\\' _ | [^ '\\'])* { raise_err "Unterminated string literal" }
-
-and read_single_quoted_string = parse
-  | ('\\' _ | [^ '\\'])* '\'' { STR (process_str lexbuf) }
-  | ('\\' _ | [^ '\\'])* { raise_err "Unterminated string literal" }
+  | _ { raiseErr $"Unexpected character in input stream: {lexeme lexbuf}" }

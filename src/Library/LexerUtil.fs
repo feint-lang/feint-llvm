@@ -6,38 +6,44 @@ open Feint.Parser
 
 exception LexerErr of string
 
-let raise_err msg = raise (LexerErr msg)
-let curr_pos (lexbuf: LexBuffer<_>) = lexbuf.StartPos
+let raiseErr msg = raise (LexerErr msg)
+let currPos (lexbuf: LexBuffer<char>) = lexbuf.StartPos
 
-let lexeme (lexbuf: LexBuffer<_>) = LexBuffer<_>.LexemeString lexbuf
+let lexeme (lexbuf: LexBuffer<char>) = LexBuffer<char>.LexemeString lexbuf
 
 // Increment line number
-let new_line (lexbuf: LexBuffer<_>) =
-    lexbuf.StartPos <- lexbuf.StartPos.NextLine
+let newLine (lexbuf: LexBuffer<_>) =
+    lexbuf.StartPos <- lexbuf.EndPos.NextLine
+    lexbuf.EndPos <- lexbuf.StartPos
 
 // Increment line number N times
-let rec new_lines lexbuf count =
+let rec newLines lexbuf count =
     match count with
     | 0 -> ()
     | _ ->
-        new_line lexbuf
-        new_lines lexbuf (count - 1)
+        newLine lexbuf
+        newLines lexbuf (count - 1)
 
 // Count newlines in string
-let count_newlines str = (String.filter ((=) '\n') str).Length
+let countNewlines str = (String.filter ((=) '\n') str).Length
 
-let new_lines_from_lexeme lexbuf =
-    new_lines lexbuf (count_newlines (lexeme lexbuf))
+let newLinesFromLexeme lexbuf =
+    newLines lexbuf (countNewlines (lexeme lexbuf))
 
 // Get current line number as string
-let line_no (lexbuf: LexBuffer<_>) = $"{lexbuf.StartPos.Line}"
+// NOTE: Positions are 0-based
+let lineNo (lexbuf: LexBuffer<char>) = $"{lexbuf.StartPos.Line + 1}"
 
 // Get current column number as string
-let col_no (lexbuf: LexBuffer<_>) = $"{lexbuf.StartPos.Column}"
+// NOTE: Positions are 0-based
+let colNo (lexbuf: LexBuffer<char>) = $"{lexbuf.StartPos.Column + 1}"
 
 // Format current line and column numbers
-let format_pos lexbuf =
-    $"line {line_no lexbuf} at column {col_no lexbuf}"
+let formatPos lexbuf =
+    $"line {lineNo lexbuf} at column {colNo lexbuf}"
+
+// Format current line and column numbers as line:column
+let formatPosShort lexbuf = $"{lineNo lexbuf}:{colNo lexbuf}"
 
 // Keywords
 let keywords =
@@ -51,7 +57,7 @@ let keywords =
           ("match", MATCH)
           ("$print", PRINT) ]
 
-let get_keyword word =
+let getKeyword word =
     match keywords.TryGetValue word with
     | true, token -> token
     | _ -> IDENT word
@@ -98,21 +104,21 @@ let operators =
           (".", DOT)
           (",", COMMA) ]
 
-let process_str lexbuf =
+let processStr lexbuf =
     let lex = lexeme lexbuf
-    new_lines lexbuf (count_newlines lex)
+    newLines lexbuf (countNewlines lex)
 
     // NOTE: Remove trailing quote from lexeme
     let str = lex.Substring(0, lex.Length - 1)
-    let peek_str = (str.Substring 1) + "\\"
+    let peekStr = (str.Substring 1) + "\\"
 
     let buf = new System.Text.StringBuilder()
-    let mutable skip_next_c = false
+    let mutable skipNextC = false
 
-    for (c, d) in (Seq.zip str peek_str) do
+    for (c, d) in (Seq.zip str peekStr) do
         if c = '\\' then
             // Handle escaped char d.
-            skip_next_c <- true
+            skipNextC <- true
 
             match d with
             | '\n' -> ()
@@ -133,10 +139,10 @@ let process_str lexbuf =
                 buf.Append('\\') |> ignore
                 buf.Append(d) |> ignore
 
-        else if skip_next_c then
+        else if skipNextC then
             // Skip c because it was escaped and handled above on the
             // previous iteration.
-            skip_next_c <- false
+            skipNextC <- false
 
         else
             // Handle unescaped char c.
