@@ -57,8 +57,13 @@ type Argv() =
 
 [<EntryPoint>]
 let main argv =
-    System.Console.BackgroundColor <- System.ConsoleColor.Black
-    System.Console.ForegroundColor <- System.ConsoleColor.White
+    // XXX: Required to avoid exception due to BackgroundColor and
+    //      ForegroundColor not being set on Unix platforms.
+    if (int) System.Console.BackgroundColor = -1 then
+        System.Console.BackgroundColor <- System.ConsoleColor.Black
+
+    if (int) System.Console.ForegroundColor = -1 then
+        System.Console.ForegroundColor <- System.ConsoleColor.White
 
     try
         let result = PowerArgs.Args.InvokeMain<Argv>(argv)
