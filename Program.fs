@@ -73,14 +73,14 @@ type Argv() =
                 | _ ->
                     match this.tokens with
                     | true ->
-                        printTokens (lexbufForFile this.fileName)
+                        printTokensFromFile this.fileName
                         0
                     | false -> this.interpret (parseFile this.fileName)
             // Run code
             | _ ->
                 match this.tokens with
                 | true ->
-                    printTokens (lexbufForText this.code "<code>")
+                    printTokensFromText this.code "<code>"
                     0
                 | false -> this.interpret (parseText this.code)
 

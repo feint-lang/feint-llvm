@@ -167,13 +167,13 @@ open Feint.Util
 
 Module:
   | EOF { [] }
-  | StatementList { dprintn "statement list"; List.rev $1 }
+  | StatementList { List.rev $1 }
 
 // Statements ----------------------------------------------------------
 
 StatementList:
-  | Statement NL { dprintn "statement"; [$1] }
-  | StatementList NL Statement { dprintn "statement list NL statement"; $3 :: $1 }
+  | Statement { [ $1 ] }
+  | StatementList Statement { $2 :: $1 }
 
 Statement:
   | Comment { $1 }

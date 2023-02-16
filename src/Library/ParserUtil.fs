@@ -6,17 +6,7 @@ open FSharp.Text.Lexing
 open Feint
 open Feint.LexerUtil
 
-let tryParse lexbuf fileName =
-    try
-        Ok(Parser.Module Lexer.read lexbuf)
-    with
-    | LexerUtil.LexerErr msg ->
-        let pos = formatPos lexbuf
-        Error($"Syntax error in {fileName} on {pos}: {msg}")
-    | exc ->
-        let pos = formatPos lexbuf
-        Error($"Parse error in {fileName} on {pos}:\n\n{exc}")
-
+// LexBuffer Creation --------------------------------------------------
 
 let initLexbuf (lexbuf: LexBuffer<char>) fileName =
     lexbuf.EndPos <-
@@ -37,14 +27,7 @@ let lexbufForFile fileName =
     let lexbuf = LexBuffer<char>.FromTextReader(stream)
     initLexbuf lexbuf fileName
 
-let parseText (text: string) =
-    let fileName = "<text>"
-    let lexbuf = lexbufForText text fileName
-    tryParse lexbuf fileName
-
-let parseFile fileName =
-    let lexbuf = lexbufForFile fileName
-    tryParse lexbuf fileName
+// Tokenizing ----------------------------------------------------------
 
 let printTokens lexbuf =
     let rec read () =
@@ -55,3 +38,49 @@ let printTokens lexbuf =
             read ()
 
     read ()
+
+let printTokensFromText text fileName =
+    printTokens (lexbufForText text fileName)
+
+let printTokensFromFile fileName = printTokens (lexbufForFile fileName)
+
+// Parsing -------------------------------------------------------------
+
+let tryParse lexbuf fileName =
+    try
+        Ok(Parser.Module Lexer.read lexbuf)
+    with
+    | LexerUtil.LexerErr msg ->
+        let pos = formatPos lexbuf
+        Error($"Syntax error in {fileName} on {pos}: {msg}")
+    | exc ->
+        let pos = formatPos lexbuf
+        Error($"Parse error in {fileName} on {pos}:\n\n{exc}")
+
+let parseText (text: string) =
+    let fileName = "<text>"
+    let lexbuf = lexbufForText text fileName
+    tryParse lexbuf fileName
+
+let parseFile fileName =
+    let lexbuf = lexbufForFile fileName
+    tryParse lexbuf fileName
+
+// Interpreting --------------------------------------------------------
+
+let interpret maybeStatements =
+    // TODO
+    ()
+
+let interpretText text fileName =
+    // TODO
+    ()
+
+let interpretFile fileName =
+    // TODO
+    ()
+
+// REPL ----------------------------------------------------------------
+let startRepl () =
+    // TODO
+    ()
