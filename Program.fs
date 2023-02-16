@@ -3,65 +3,77 @@
 open Feint.Interpreter
 open Feint.ParserUtil
 
+// XXX: This is used as a hacky way to return an exit code from Main()
+//      since PowerArgs doesn't seem to support exit codes when using
+//      InvokeMain.
+exception Exit of int
+
 [<ArgExceptionBehavior(ArgExceptionPolicy.StandardExceptionHandling)>]
 type Argv() =
-    // XXX: <HelpHook> causes an exception, so we have to handle help
-    //      manually for now
-    // [<HelpHook>]
+    [<HelpHook>]
     [<ArgDescription("Show this help")>]
     [<ArgShortcut("-h")>]
-    member val Help = false with get, set
+    [<ArgShortcut("--help")>]
+    member val help = false with get, set
 
     [<ArgDescription("Run code snippet")>]
-    [<ArgDefaultValue("")>]
-    member val Code = "" with get, set
+    [<ArgShortcut("-c")>]
+    [<ArgShortcut("--code")>]
+    member val code = "" with get, set
 
     [<ArgDescription("Run file")>]
-    // [<ArgExistingFile>]
+    [<ArgExistingFile>]
     [<ArgPosition(0)>]
-    member val FileName = "" with get, set
+    member val fileName = "" with get, set
 
-let usage () =
-    // XXX: This throws an exception
-    // let usage = ArgUsage.GenerateUsageFromTemplate<Argv>()
+    member this.interpret statements =
+        match statements with
+        | Ok statements ->
+            let intepreter = Interpreter false
 
-    sprintf "usage: dotnet run [-c <code>] [-f <file_name>]"
-
-let interpret =
-    function
-    | Ok statements ->
-        let intepreter = Interpreter false
-
-        try
-            intepreter.interpret statements
-            0
-        with InterpreterErr msg ->
+            try
+                intepreter.interpret statements
+                0
+            with InterpreterErr msg ->
+                eprintfn "Error: %s" msg
+                1
+        | Error msg ->
+            // Lex or parse error
             eprintfn "%s" msg
-            -1
-    | Error msg ->
-        eprintfn "%s" msg
-        -1
+            2
 
-let invoke (args: Argv) =
-    if args.Help then
-        eprintfn "%s" (usage ())
-        0
-    else if args.Code.Length > 0 then
-        interpret (parseText args.Code)
-    else if args.FileName.Length > 0 then
-        interpret (parseFile args.FileName)
-    else
-        let repl = REPL()
-        repl.start ()
+    member this.Main() : unit =
+        let exit_code =
+            match this.code with
+            | null ->
+                match this.fileName with
+                | null ->
+                    let repl = REPL()
+                    repl.start ()
+                | _ -> this.interpret (parseFile this.fileName)
+            | _ -> this.interpret (parseText this.code)
+
+        raise (Exit exit_code)
 
 [<EntryPoint>]
 let main argv =
-    try
-        // XXX: This throws an exception
-        // PowerArgs.Args.InvokeMain<Argv>(argv) |> ignore
+    System.Console.BackgroundColor <- System.ConsoleColor.Black
+    System.Console.ForegroundColor <- System.ConsoleColor.White
 
-        let args = PowerArgs.Args.Parse<Argv>(argv)
-        invoke args
-    with :? PowerArgs.ArgException as exc ->
-        eprintfn "%s\n%s" exc.Message (usage ())
-        -1
+    try
+        let result = PowerArgs.Args.InvokeMain<Argv>(argv)
+
+        match result.Cancelled with
+        | true ->
+            // This will happen on --help
+            0
+        | _ ->
+            match result.HandledException with
+            | null ->
+                // XXX: Unreachable?
+                254
+            | _ ->
+                // This will happen when bad args are passed
+                255
+    with Exit exit_code ->
+        exit_code
